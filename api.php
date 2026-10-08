@@ -358,7 +358,7 @@ try {
             $sel = in_array('all', $want, true)
                 ? array_values(array_filter($all, fn($c) => ($c['status'] ?? '') === 'ENABLED'))
                 : array_values(array_filter($all, fn($c) => in_array((string)$c['id'], $want, true)));
-            out(script_generate($acc, $sel, $IN));
+            out(script_generate($acc, $sel, script_autofill($IN, $sel)));
 
         case 'breakdown':
             [$from, $to] = dates();

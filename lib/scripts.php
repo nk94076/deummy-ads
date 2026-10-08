@@ -11,6 +11,39 @@
 
 const SCRIPT_MODES = ['ROTATE', 'SET'];
 
+/** Auto-build a rotation suffix list from the campaign itself (no manual input needed) */
+function script_auto_suffixes(array $camps, int $count = 5): string
+{
+    $c = $camps[0] ?? null;
+    $slug = $c ? preg_replace('/[^a-z0-9]+/', '', strtolower(preg_replace('/^trivago\s*/i', '', (string)$c['name']))) : '';
+    if ($slug === '') $slug = 'cmp';
+    $lines = [];
+    for ($i = 1; $i <= max(2, $count); $i++) {
+        $lines[] = sprintf('clickref=th_%s_%02d&utm_source=google&utm_medium=cpc&utm_campaign={campaignid}', $slug, $i);
+    }
+    return implode("\n", $lines);
+}
+
+/** Fill in the data a script needs straight from the selected campaign(s) */
+function script_autofill(array $in, array $camps): array
+{
+    $mode = in_array($in['mode'] ?? '', SCRIPT_MODES, true) ? $in['mode'] : 'ROTATE';
+    if ($mode === 'SET') {
+        if (trim((string)($in['tracking_template'] ?? '')) === '' && trim((string)($in['final_url_suffix'] ?? '')) === '') {
+            $in['tracking_template'] = '{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign={campaignid}';
+            $in['final_url_suffix'] = 'clickref={campaignid}&utm_term={keyword}';
+        }
+    } else {
+        if (trim((string)($in['suffixes'] ?? '')) === '') {
+            $in['suffixes'] = script_auto_suffixes($camps);
+        }
+        if (trim((string)($in['clicks_per'] ?? '')) === '') {
+            $in['clicks_per'] = 50;
+        }
+    }
+    return $in;
+}
+
 /** Validate the form and return the script text + meta */
 function script_generate(array $acc, array $camps, array $in): array
 {
