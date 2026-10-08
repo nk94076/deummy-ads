@@ -241,9 +241,7 @@ window.A = (() => {
     const p = openPop(btn, `<div class="row" style="padding:4px"><input class="search" placeholder="Search account / email…" id="accQ" style="flex:1">
       <button class="btn icon sm" id="accRef" title="Refresh accounts">${icon('refresh', 'sm')}</button></div>
       <div class="list">${render('')}</div>
-      <div class="sep"></div><a class="opt" href="connect.php">${icon('plus', 'sm')} Connect Google or manager account</a>
-      ${APP.canEdit ? `<a class="opt" href="#new-accounts">${icon('db', 'sm')} New accounts in manager</a>
-      <a class="opt" href="#link-accounts">${icon('link', 'sm')} Link existing accounts to MCC</a>` : ''}`, 'acc-pop');
+      <div class="sep"></div><a class="opt" href="connect.php">${icon('plus', 'sm')} Connect Google or manager account</a>`, 'acc-pop');
     $('#accQ', p).focus();
     $('#accQ', p).addEventListener('input', e => { $('.list', p).innerHTML = render(e.target.value.toLowerCase()); });
     $('#accRef', p).addEventListener('click', async () => {
@@ -368,7 +366,8 @@ window.A = (() => {
   const views = {};
   function route() {
     const [name, ...rest] = (location.hash.slice(1) || 'dashboard').split('/');
-    const v = views[name] ? name : 'dashboard';
+    const HIDDEN = ['new-accounts', 'link-accounts', 'access', 'affreport']; // pages removed from this build
+    const v = views[name] && !HIDDEN.includes(name) ? name : 'dashboard';
     state.view = v;
     $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.v === (v === 'campaign' || v === 'new-campaign' ? 'campaigns' : (v === 'new-accounts' || v === 'link-accounts') ? 'overview' : v)));
     const V = views[v];

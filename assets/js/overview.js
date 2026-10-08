@@ -66,7 +66,7 @@
         <section class="card"><div class="card-head"><h2>Accounts <span class="pill" id="ovN">0</span></h2>
           <div class="tools"><div class="search-in">${icon('search', 'sm')}<input id="ovQ" placeholder="Account / email search…"></div>
           <select id="ovS"><option value="ENABLED">Active only</option><option value="">All</option></select>
-          ${APP.canEdit ? `<a class="btn" href="#link-accounts">${icon('link', 'sm')} Link existing</a> <a class="btn primary" href="#new-accounts">${icon('plus', 'sm')} New accounts in manager</a>` : ''}</div></div>
+</div></div>
           <div class="table-wrap" id="ovT"><p style="padding:30px;text-align:center"><span class="spin"></span></p></div></section>`;
       const load = async () => {
         let d;
