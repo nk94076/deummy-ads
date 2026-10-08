@@ -48,7 +48,7 @@ return [
         'address'             => '',
         'gstin'               => '',
         'payments_account_id' => '',
-        'payment_setting'     => 'Automatic payments',
+        'payment_setting'     => 'Manual payments',
         'payment_method'      => '',
     ],
     'billing_tax_rate'  => 18,   // GST % added on top of ad spend (Google Ads India invoices)
