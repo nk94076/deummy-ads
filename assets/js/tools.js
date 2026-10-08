@@ -87,7 +87,7 @@
       $('#bu').onclick = () => A.bulkUrlModal(null, '', null);
       A.api('changes').then(d => {
         if (!$('#log')) return;
-        $('#log').innerHTML = d.changes.length ? d.changes.map(c => `<div class="log-row"><span class="t">${esc(c.t)}</span><span class="muted">${esc(A.fmtId(c.cid))}</span><span style="flex:1">${esc(c.what)}${c.demo ? ' <span class="badge">demo</span>' : ''}</span></div>`).join('')
+        $('#log').innerHTML = d.changes.length ? d.changes.map(c => `<div class="log-row"><span class="t">${esc(c.t)}</span><span class="muted">${esc(A.fmtId(c.cid))}</span><span style="flex:1">${esc(c.what)}${c.demo && A.state.demoLabels ? ' <span class="badge">demo</span>' : ''}</span></div>`).join('')
           : '<p class="muted" style="padding:0 24px 20px">No changes yet.</p>';
       }).catch(A.showError);
       try {

@@ -191,7 +191,7 @@ try {
         // ================= Session / accounts =================
         case 'me':
             $u = current_user();
-            out(['user' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'demo' => $demo,
+            out(['user' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'demo' => $demo, 'demo_banner' => ($CONFIG['demo_banner'] ?? true) !== false,
                  'can_edit' => !empty($CONFIG['allow_changes']), 'onboard' => user_needs_onboarding($u)]);
 
         case 'accounts':

@@ -167,7 +167,7 @@
         $('#conns').innerHTML = d.connections.length ? d.connections.map(c => `<div class="list-item"><div class="avatar" style="background:var(--accent-2);color:var(--accent)">${esc(c.email[0].toUpperCase())}</div>
           <div class="grow"><div class="t">${esc(c.email)}</div><div class="muted small">Connected ${esc(c.created)}${c.accounts !== null ? ` · ${c.accounts} account(s)` : ''}
           ${c.roots.filter(r => r.type === 'MCC').map(r => ` · MCC: ${esc(r.name)} (${r.count})`).join('')}</div></div></div>`).join('')
-          : `<div class="card-body"><div class="alert info" style="margin:0">No Google account connected yet, so the dashboard shows demo data. <a href="connect.php"><b>Connect now →</b></a></div></div>`;
+          : `<div class="card-body"><div class="alert info" style="margin:0">No Google account connected yet${A.state.demoLabels ? ', so the dashboard shows demo data' : ''}. <a href="connect.php"><b>Connect now →</b></a></div></div>`;
       }).catch(A.showError);
 
       if (u.role === 'admin') {

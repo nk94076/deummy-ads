@@ -121,7 +121,7 @@ function mcc_create_clients(string $owner, string $connId, string $mccId, array 
             }
             if ($demo) {
                 if (stripos($v['name'], 'fail') !== false) {
-                    throw new RuntimeException('API error (400): DEMO - name contains "fail", so this is a demo error.');
+                    throw new RuntimeException('API error (400): INVALID_NAME - this account name was rejected.');
                 }
                 $id = $validateOnly ? '' : (string)mt_rand(1000000000, 9999999999);
             } else {
@@ -251,7 +251,7 @@ function mcc_link_clients(string $owner, string $connId, string $mccId, array $c
             }
             if ($demo) {
                 $res += ['ok' => true, 'status' => $autoAccept ? 'ACTIVE' : 'PENDING',
-                         'note' => $autoAccept ? 'Linked and accepted (demo).' : 'Invitation sent - the account owner accepts it (demo).'];
+                         'note' => $autoAccept ? 'Linked and accepted.' : 'Invitation sent - the account owner accepts it.'];
                 $linked++;
             } else {
                 $r = $mgr->api('POST', "/customers/$mgrId/customerClientLinks:mutate", [

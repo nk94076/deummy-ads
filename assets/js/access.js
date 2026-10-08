@@ -63,7 +63,7 @@
         const rows = (list, mine) => list.map(s => `<tr><td class="l"><b>${esc(s.account_name)}</b><span class="sub">${s.customer_id === '*' ? 'All accounts' : esc(A.fmtId(s.customer_id))} · ${esc(s.email || '')}</span></td>
           <td class="l">${esc(mine ? s.shared_with : s.owner)}</td><td class="l"><span class="chip ${s.role === 'edit' ? 'on' : ''}">${s.role === 'edit' ? 'Can edit' : 'View only'}</span></td>
           <td class="l">${esc(String(s.created_at).slice(0, 10))}</td><td><button class="btn sm danger" data-unshare="${s.id}" data-name="${esc(s.account_name)}">${icon('trash', 'sm')} ${mine ? 'Remove' : 'Leave'}</button></td></tr>`).join('');
-        box.innerHTML = `${state.demo ? '<div class="card-body"><div class="alert info" style="margin:0">Demo mode: connect your Google account first to share.</div></div>' : ''}
+        box.innerHTML = `${state.demoLabels ? '<div class="card-body"><div class="alert info" style="margin:0">Demo mode: connect your Google account first to share.</div></div>' : ''}
           <div class="sub-h">Shared by me <span class="pill">${d.given.length}</span></div>
           <div class="table-wrap"><table class="data"><thead><tr><th class="l">Account</th><th class="l">Kisko</th><th class="l">Access</th><th class="l">Date</th><th></th></tr></thead>
             <tbody>${rows(d.given, true) || '<tr><td class="empty" colspan="5">Nothing shared yet</td></tr>'}</tbody></table></div>

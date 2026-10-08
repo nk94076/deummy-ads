@@ -9,10 +9,10 @@
       `<label class="f">${esc(label)}</label><input data-cf="${esc(k)}" autocomplete="off" placeholder="${esc(label)}">`).join('');
     const m = A.modal({
       title: `Connect ${NET_NAMES[net] || net}`,
-      body: `<p class="muted small" style="margin:0 0 12px">Enter your ${esc(NET_NAMES[net])} API credentials to pull real conversions, or use demo data to try it first.</p>
+      body: `<p class="muted small" style="margin:0 0 12px">Enter your ${esc(NET_NAMES[net])} API credentials to pull real conversions, or use sample data to try it first.</p>
         <label class="f">Label <span class="muted">(your reference)</span></label><input id="cn_label" value="${esc(existing?.label || NET_NAMES[net])}">
         <div id="cn_fields">${fieldRows}</div>
-        <label class="row f" style="gap:10px;margin-top:10px"><span class="switch"><input type="checkbox" id="cn_demo"><span></span></span> Use demo data (no keys needed — try it out)</label>
+        <label class="row f" style="gap:10px;margin-top:10px"><span class="switch"><input type="checkbox" id="cn_demo"><span></span></span> Use sample data (no keys needed — try it out)</label>
         <div class="alert err" id="cn_err" style="display:none;margin-top:12px"></div>`,
       foot: `<button class="btn" data-close>Cancel</button><button class="btn primary" id="cn_save">Connect</button>`,
     });
@@ -63,7 +63,7 @@
       const netCards = ['impact', 'awin'].map(n => {
         const acct = nets.networks.find(x => x.network === n);
         return `<div class="list-item"><div class="avatar" style="background:var(--accent-2);color:var(--accent)">${esc((NET_NAMES[n][0]))}</div>
-          <div class="grow"><div class="t">${esc(NET_NAMES[n])}${acct ? (acct.demo ? ' <span class="badge">demo</span>' : '') : ''}</div>
+          <div class="grow"><div class="t">${esc(NET_NAMES[n])}${acct ? (acct.demo && A.state.demoLabels ? ' <span class="badge">demo</span>' : '') : ''}</div>
             <div class="muted small">${acct ? (acct.status === 'error' ? `<span class="bad">${esc(acct.last_error || 'error')}</span>` : `Connected${acct.last_sync ? ' · synced ' + esc(acct.last_sync) : ''}`) : 'Not connected'}</div></div>
           ${acct
             ? `<button class="btn sm" data-net-edit="${n}">Edit</button> <button class="btn sm danger" data-net-rm="${acct.id}">Remove</button>`
@@ -119,7 +119,7 @@
           </div></section>` : '';
 
       el.innerHTML = `
-        ${rep.demo ? '<div class="alert info">Demo data — connect Impact/AWIN with real keys to optimize your live campaigns.</div>' : ''}
+        ${rep.demo && A.state.demoLabels ? '<div class="alert info">Demo data — connect Impact/AWIN with real keys to optimize your live campaigns.</div>' : ''}
         <section class="card"><div class="card-head"><h2>${icon('link')} Affiliate networks</h2>
           <div class="tools"><button class="btn sm" id="opt_track">${icon('target', 'sm')} Tracking setup</button>${nets.networks.length ? `<button class="btn sm primary" id="opt_sync">${icon('refresh', 'sm')} Sync now</button>` : ''}</div></div>
           <div class="card-body">${netCards}</div></section>

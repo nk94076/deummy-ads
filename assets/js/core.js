@@ -65,7 +65,7 @@ window.A = (() => {
 
   // ---------- formatting ----------
   const state = {
-    accounts: [], acc: null, from: null, to: null, range: '7', demo: false, view: 'dashboard', report: null,
+    accounts: [], acc: null, from: null, to: null, range: '7', demo: false, demoLabels: false, view: 'dashboard', report: null,
   };
   const num = n => new Intl.NumberFormat('en-IN').format(Math.round(n || 0));
   const dec = (n, p = 2) => new Intl.NumberFormat('en-IN', { minimumFractionDigits: p, maximumFractionDigits: p }).format(n || 0);
@@ -192,6 +192,7 @@ window.A = (() => {
     const d = await api('accounts', refresh ? { refresh: 1 } : {});
     state.accounts = d.accounts;
     state.demo = d.demo;
+    state.demoLabels = !!d.demo && d.demo_banner !== false; // config demo_banner=false hides every demo note
     const w = $('#warnBox');
     if (d.errors?.length) {
       w.innerHTML = '<b>Some accounts could not be loaded:</b><br>' + d.errors.map(esc).join('<br>') +
@@ -199,7 +200,7 @@ window.A = (() => {
       w.classList.remove('hidden');
     } else w.classList.add('hidden');
     const demo = $('#demoBox');
-    if (d.demo && d.demo_banner !== false) {
+    if (state.demoLabels) {
       demo.innerHTML = `<b>Demo account:</b> Trivago campaign data. Edits show here only and nothing changes in Google Ads. For your live accounts, <a href="connect.php"><b>connect your Google account →</b></a>`;
       demo.classList.remove('hidden');
     } else demo.classList.add('hidden');
@@ -282,7 +283,7 @@ window.A = (() => {
   }
   function confirmBox(text, okLabel = 'Confirm', danger = false) {
     return new Promise(res => {
-      const m = modal({ title: 'Confirm', body: `<p style="margin-top:14px">${text}</p>${state.demo ? '<p class="muted small">Demo mode: nothing changes in Google Ads.</p>' : ''}`,
+      const m = modal({ title: 'Confirm', body: `<p style="margin-top:14px">${text}</p>${state.demoLabels ? '<p class="muted small">Demo mode: nothing changes in Google Ads.</p>' : ''}`,
         foot: `<button class="btn" data-close>Cancel</button><button class="btn ${danger ? 'danger' : 'primary'}" id="ok">${okLabel}</button>` });
       m.$('#ok').onclick = () => { m.close(); res(true); };
       m.el.addEventListener('click', e => { if (e.target.closest('[data-close]')) res(false); });

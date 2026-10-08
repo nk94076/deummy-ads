@@ -223,21 +223,21 @@ $onboard = user_needs_onboarding($u);
 <div class="toast hidden" id="toast"></div>
 <script>window.APP = { csrf: <?= json_encode($_SESSION['csrf']) ?>, user: <?= json_encode(['username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'super' => !empty($u['super'])]) ?>, canEdit: <?= !empty($CONFIG['allow_changes']) ? 'true' : 'false' ?>, brand: <?= json_encode($brand) ?>, onboard: <?= $onboard ? 'true' : 'false' ?> };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/js/core.js?v=12"></script>
+<script src="assets/js/core.js?v=13"></script>
 <script src="assets/js/dashboard.js?v=9"></script>
 <script src="assets/js/campaign.js?v=9"></script>
-<script src="assets/js/builder.js?v=10"></script>
+<script src="assets/js/builder.js?v=11"></script>
 <script src="assets/js/presets.js?v=1"></script>
 <script src="assets/js/reports.js?v=8"></script>
-<script src="assets/js/tools.js?v=8"></script>
+<script src="assets/js/tools.js?v=9"></script>
 <script src="assets/js/automation.js?v=8"></script>
-<script src="assets/js/settings.js?v=13"></script>
+<script src="assets/js/settings.js?v=14"></script>
 <script src="assets/js/overview.js?v=10"></script>
 <script src="assets/js/rotator.js?v=12"></script>
-<script src="assets/js/access.js?v=9"></script>
+<script src="assets/js/access.js?v=10"></script>
 <script src="assets/js/mcc.js?v=9"></script>
 <script src="assets/js/conversions.js?v=9"></script>
-<script src="assets/js/optimizer.js?v=5"></script>
+<script src="assets/js/optimizer.js?v=6"></script>
 <script src="assets/js/affreport.js?v=1"></script>
 <script src="assets/js/billing.js?v=1"></script>
 <script src="assets/js/onboard.js?v=1"></script>

@@ -465,7 +465,7 @@
         <div class="wz-head">
           <div><div class="crumbs"><a href="#campaigns">Campaigns</a> › <span>${esc(state.acc.name)}</span> › <b>New Search campaign</b></div>
             <h1 class="wz-title">New Search campaign</h1>
-            <div class="muted small">Account: ${esc(state.acc.name)} · Customer ID: ${esc(A.fmtId(state.acc.id))}${state.demo ? ' · <span class="chip">Demo</span>' : ''}</div></div>
+            <div class="muted small">Account: ${esc(state.acc.name)} · Customer ID: ${esc(A.fmtId(state.acc.id))}${state.demoLabels ? ' · <span class="chip">Demo</span>' : ''}</div></div>
           <div class="wz-actions"><button class="btn" id="w_draft">${icon('save', 'sm')} Save as draft</button>
             <button class="btn primary" id="w_create_top">${icon('send', 'sm')} Create campaign (Paused)</button></div>
         </div>

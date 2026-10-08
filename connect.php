@@ -158,7 +158,7 @@ $conns    = conns_load(me());
     <!-- Connected emails -->
     <div class="conn-list">
       <?php if (!$conns): ?>
-        <div class="muted small">No Google account connected yet (the dashboard is in demo mode).</div>
+        <div class="muted small">No Google account connected yet<?= ($CONFIG['demo_banner'] ?? true) !== false ? ' (the dashboard is in demo mode)' : '' ?>.</div>
       <?php endif; ?>
       <?php foreach ($conns as $c): ?>
         <div class="conn-item">
