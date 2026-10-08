@@ -41,6 +41,21 @@ return [
 
     'timezone'          => 'Asia/Kolkata',
 
+    // ---- Billing page (sidebar > Billing): payments profile shown above the spend summary ----
+    // Leave a field empty to hide it.
+    'billing_profile'   => [
+        'name'                => 'Click Orbits Private Limited',
+        'address'             => '',
+        'gstin'               => '',
+        'payments_account_id' => '',
+        'payment_setting'     => 'Automatic payments',
+        'payment_method'      => '',
+    ],
+    'billing_tax_rate'  => 18,   // GST % added on top of ad spend (Google Ads India invoices)
+
+    // Demo account (shown when no Google account is connected): show the "Demo account" note at the top
+    'demo_banner'       => true,
+
     // (Optional) AI-written headlines/descriptions in the Smart Campaign Builder.
     // Anthropic API key (console.anthropic.com). Empty = website analysis + Keyword Planner only.
     'anthropic_api_key' => '',

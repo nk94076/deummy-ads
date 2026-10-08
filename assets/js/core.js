@@ -199,8 +199,8 @@ window.A = (() => {
       w.classList.remove('hidden');
     } else w.classList.add('hidden');
     const demo = $('#demoBox');
-    if (d.demo) {
-      demo.innerHTML = `<b>Demo mode:</b> sample data. Edits show here only and nothing changes in Google Ads. For real data, <a href="connect.php"><b>connect your Google account →</b></a>`;
+    if (d.demo && d.demo_banner !== false) {
+      demo.innerHTML = `<b>Demo account:</b> Trivago campaign data. Edits show here only and nothing changes in Google Ads. For your live accounts, <a href="connect.php"><b>connect your Google account →</b></a>`;
       demo.classList.remove('hidden');
     } else demo.classList.add('hidden');
 

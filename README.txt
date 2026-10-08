@@ -1,6 +1,26 @@
 AdHook Ads Manager v3 - Google Ads tool (PHP 8+ + MySQL, no Composer)
 =========================================================================
 
+v3.5 - TRIVAGO DEMO ACCOUNT + BILLING PAGE
+------------------------------------------
+DEMO ACCOUNT (shown when the logged-in user has no Google account connected)
+- One account "Trivago - Click Orbits" (Customer ID 481-725-6093) built from lib/demo_data/trivago.csv
+- Campaigns: Trivago DE, UK, NZ, CA, CH, UK - 2, NZ - 2, US with their real daily spend, clicks,
+  conversions and revenue (conv. value) from the sheet - every date filter shows that period's numbers
+- Each campaign: 2 ad groups (Hotels - <country>, trivago Brand), 2 trivago RSA ads per group
+  (German copy for DE/CH, English for the rest), keywords, search terms, location + language targeting
+- Ads tab > "Preview ad": Google-style search ad preview + all headlines/descriptions
+- Impressions are not in the sheet, so they are derived from clicks (CTR 7-13%)
+- To change the data: replace lib/demo_data/trivago.csv with a new export (same columns)
+- config.php 'demo_banner' => false hides the "Demo account" note at the top
+
+BILLING (sidebar > Billing)
+- Payments profile (config.php 'billing_profile': name, payments account ID, GSTIN, address, payment
+  setting / method - empty fields are hidden). Default name: Click Orbits Private Limited
+- Ad spend for the selected dates + GST (config 'billing_tax_rate', default 18) + total incl. GST
+- Demo account: total spend to date, monthly statements for the full history
+- Daily spend chart, spend by campaign with share %, CSV export of the monthly statements
+
 v3.4 - CONVERSION TRACKING + KEYWORD-LEVEL FINAL URL
 ----------------------------------------------------
 CONVERSIONS (sidebar > Conversions)

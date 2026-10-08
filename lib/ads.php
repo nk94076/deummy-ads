@@ -404,6 +404,9 @@ class AdsReal
                                   ad_group_ad.ad.final_urls, ad_group_ad.ad.tracking_url_template,
                                   ad_group_ad.ad.final_url_suffix, ad_group_ad.status,
                                   ad_group_ad.ad.responsive_search_ad.headlines,
+                                  ad_group_ad.ad.responsive_search_ad.descriptions,
+                                  ad_group_ad.ad.responsive_search_ad.path1,
+                                  ad_group_ad.ad.responsive_search_ad.path2,
                                   ad_group_ad.policy_summary.approval_status,
                                   ad_group.id, ad_group.name
                            FROM ad_group_ad
@@ -412,7 +415,8 @@ class AdsReal
             if (!$a || empty($a['id'])) {
                 continue;
             }
-            $heads = array_slice(array_map(fn($h) => $h['text'] ?? '', $a['responsiveSearchAd']['headlines'] ?? []), 0, 3);
+            $allHeads = array_values(array_filter(array_map(fn($h) => $h['text'] ?? '', $a['responsiveSearchAd']['headlines'] ?? [])));
+            $heads = array_slice($allHeads, 0, 3);
             $list[(string)$a['id']] = [
                 'id' => (string)$a['id'], 'ag_id' => (string)($r['adGroup']['id'] ?? ''),
                 'ag_name' => $r['adGroup']['name'] ?? '', 'type' => $a['type'] ?? '',
@@ -422,6 +426,9 @@ class AdsReal
                 'final_urls' => $a['finalUrls'] ?? [],
                 'tracking_url_template' => $a['trackingUrlTemplate'] ?? '',
                 'final_url_suffix' => $a['finalUrlSuffix'] ?? '',
+                'headlines' => $allHeads,
+                'descriptions' => array_values(array_filter(array_map(fn($d) => $d['text'] ?? '', $a['responsiveSearchAd']['descriptions'] ?? []))),
+                'path1' => $a['responsiveSearchAd']['path1'] ?? '', 'path2' => $a['responsiveSearchAd']['path2'] ?? '',
             ] + ZERO_METRICS;
         }
         if ($list) {

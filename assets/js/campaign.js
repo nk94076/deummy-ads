@@ -174,7 +174,7 @@
       ], { rows: d.asset_groups }).render();
     }
     new A.Table($('#adT'), [
-      { k: 'title', label: 'Ad', cls: 'l', html: r => `<b class="sub" style="color:var(--text);font-size:13px;max-width:320px" title="${esc(r.title)}">${esc(r.title)}</b><span class="sub">${esc(r.ag_name)} · ${esc(label(r.type))}</span>` },
+      { k: 'title', label: 'Ad', cls: 'l', html: r => `<b class="sub" style="color:var(--text);font-size:13px;max-width:320px" title="${esc(r.title)}">${esc(r.title)}</b><span class="sub">${esc(r.ag_name)} · ${esc(label(r.type))}${r.headlines?.length ? ` · <a href="#" data-prev="${r.id}">Preview ad</a>` : ''}</span>` },
       { k: 'status', label: 'Status', cls: 'l', html: r => statusPill(r.status) + (r.approval && r.approval !== 'APPROVED' ? `<span class="sub">${esc(label(r.approval))}</span>` : '') },
       { k: 'u', label: 'Final URL', cls: 'l', sort: false, html: r => `<span class="url" title="${esc(r.final_urls.join('\n'))}">${esc(r.final_urls[0] || '—')}</span>${r.tracking_url_template || r.final_url_suffix ? '<span class="sub">+ tracking</span>' : ''}` },
       { k: 'clicks', label: 'Clicks', html: r => num(r.clicks) },
@@ -193,11 +193,38 @@
           A.rsaModal(c, list, () => ads(el, c), { final_url: rows.find(r => r.final_urls?.length)?.final_urls[0] || '' });
         }).catch(A.showError);
       }
+      const pv = e.target.closest('[data-prev]');
+      if (pv) { e.preventDefault(); return adPreview(rows.find(r => r.id === pv.dataset.prev)); }
       const b = e.target.closest('[data-edit]');
       if (b) adModal(rows.find(r => r.id === b.dataset.edit), () => ads(el, c));
       const g = e.target.closest('[data-ag-edit]');
       if (g) assetGroupModal(d.asset_groups.find(r => r.id === g.dataset.agEdit), () => ads(el, c));
     };
+  }
+
+  /** Google-style preview of a responsive search ad + its full asset list */
+  function adPreview(ad) {
+    if (!ad) return;
+    const H = ad.headlines || [], D = ad.descriptions || [];
+    const url = (ad.final_urls[0] || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const host = url.split('/')[0];
+    const disp = [host, ad.path1, ad.path2].filter(Boolean).join(' › ');
+    const card = (h, d) => `<div class="adprev"><div class="adprev-top"><span class="adprev-fav">${esc((host.replace(/^www\./, '')[0] || 'a').toUpperCase())}</span>
+        <div><div class="adprev-site">${esc(host.replace(/^www\./, '').split('.')[0])}</div><div class="adprev-url">${esc(disp)}</div></div></div>
+        <div class="adprev-spon">Sponsored</div><div class="adprev-h">${h.map(esc).join(' | ')}</div><div class="adprev-d">${d.map(esc).join(' ')}</div></div>`;
+    A.modal({
+      title: 'Ad preview', wide: true,
+      body: `<p class="muted small" style="margin:12px 0">${esc(ad.ag_name)} · Ad ID ${esc(ad.id)} · ${statusPill(ad.status)}</p>
+        <div class="section-t">Mobile / desktop search result</div>
+        ${card(H.slice(0, 3), D.slice(0, 2))}
+        ${H.length > 3 ? card([H[3], H[4] || H[0]].filter(Boolean), [D[2] || D[0]].filter(Boolean)) : ''}
+        <div class="section-t">Headlines (${H.length}/15)</div>
+        <div class="assets">${H.map(h => `<span class="asset">${esc(h)}<small>${h.length}/30</small></span>`).join('')}</div>
+        <div class="section-t">Descriptions (${D.length}/4)</div>
+        <div class="assets">${D.map(d => `<span class="asset">${esc(d)}<small>${d.length}/90</small></span>`).join('')}</div>
+        <div class="section-t">Final URL</div><p class="small"><a href="${esc(ad.final_urls[0] || '#')}" target="_blank" rel="noopener">${esc(ad.final_urls[0] || '—')}</a></p>`,
+      foot: `<button class="btn" data-close>Close</button>`,
+    });
   }
 
   function adModal(ad, done) {

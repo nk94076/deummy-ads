@@ -57,7 +57,7 @@ const GET_SAFE = ['me', 'accounts', 'connections', 'overview', 'report', 'breakd
     'ads', 'geo_search', 'languages', 'targeting', 'keywords', 'search_terms', 'account_settings', 'changes',
     'rules', 'rotators', 'rotator_items', 'rotator_log', 'rotator_report', 'mcc_list', 'mcc_clients', 'shares', 'share_users',
     'access_list', 'users', 'conversions', 'conversion_status', 'conversion_tag', 'smart_analyze', 'twofa_status', 'clone_targets', 'brand_get',
-    'networks', 'optimizer', 'affiliate_conversions', 'affiliate_report', 'presets'];
+    'networks', 'optimizer', 'affiliate_conversions', 'affiliate_report', 'presets', 'billing'];
 $isWrite = !in_array($action, GET_SAFE, true);
 // During a DB outage a recent session is trusted for reads only. Any write by an
 // unverifiable user is refused (fail closed) - a disabled/demoted user can't slip a change through.
@@ -196,7 +196,7 @@ try {
 
         case 'accounts':
             if ($demo) {
-                out(['demo' => true, 'accounts' => DemoData::accounts(), 'errors' => []]);
+                out(['demo' => true, 'demo_banner' => ($CONFIG['demo_banner'] ?? true) !== false, 'accounts' => DemoData::accounts(), 'errors' => []]);
             }
             $accounts = [];
             $errors = [];
@@ -285,6 +285,57 @@ try {
             $r['daily'] = $filled;
             $r['totals'] = sum_metrics($filled);
             out($r + ['from' => $from, 'to' => $to, 'days' => $days]);
+
+        // ================= Billing (spend summary for the payments profile) =================
+        case 'billing':
+            $s = svc();
+            [$from, $to] = dates();
+            $prof = array_filter(array_merge(['name' => 'Click Orbits Private Limited'], (array)($CONFIG['billing_profile'] ?? [])),
+                fn($v) => trim((string)$v) !== '');
+            $rate = (float)($CONFIG['billing_tax_rate'] ?? 18);
+            $tax = fn(float $c) => ['tax' => round($c * $rate / 100, 2), 'total' => round($c * (1 + $rate / 100), 2)];
+            $sumRows = function (array $rows) use ($tax): array {
+                $months = [];
+                $camps = [];
+                $daily = [];
+                foreach ($rows as $r) {
+                    $m = substr($r['date'], 0, 7);
+                    $months[$m] ??= ['month' => $m] + ZERO_METRICS + ['camp_ids' => []];
+                    $camps[$r['campaign_id']] ??= ['id' => (string)$r['campaign_id'], 'name' => $r['name'], 'status' => $r['status']] + ZERO_METRICS;
+                    $daily[$r['date']] ??= ['date' => $r['date'], 'cost' => 0];
+                    foreach (ZERO_METRICS as $k => $_) {
+                        $months[$m][$k] += $r[$k];
+                        $camps[$r['campaign_id']][$k] += $r[$k];
+                    }
+                    $daily[$r['date']]['cost'] += $r['cost'];
+                    if ($r['cost'] > 0) $months[$m]['camp_ids'][$r['campaign_id']] = 1;
+                }
+                ksort($months);
+                ksort($daily);
+                $months = array_map(function ($x) use ($tax) {
+                    $x['campaigns'] = count($x['camp_ids']);
+                    unset($x['camp_ids']);
+                    $x['cost'] = round($x['cost'], 2);
+                    return $x + $tax($x['cost']);
+                }, array_values($months));
+                $camps = array_values(array_map(fn($c) => array_merge($c, ['cost' => round($c['cost'], 2)]), $camps));
+                usort($camps, fn($a, $b) => $b['cost'] <=> $a['cost']);
+                $t = sum_metrics($months);
+                return ['totals' => $t + $tax($t['cost']), 'months' => $months, 'campaigns' => $camps,
+                        'daily' => array_values(array_map(fn($d) => ['date' => $d['date'], 'cost' => round($d['cost'], 2)], $daily))];
+            };
+            $range = $sumRows($s->campaignDaily($from, $to));
+            $life = null;
+            if ($demo) { // whole history of the demo account
+                $d = TrivagoData::load();
+                if ($d['min']) {
+                    $l = $sumRows($s->campaignDaily($d['min'], $d['max']));
+                    $life = ['from' => $d['min'], 'to' => $d['max'], 'months' => $l['months']] + $l['totals'];
+                }
+            }
+            out(['profile' => $prof, 'tax_rate' => $rate, 'currency' => 'INR', 'from' => $from, 'to' => $to,
+                 'range' => $range['totals'], 'months' => $range['months'], 'campaigns' => $range['campaigns'],
+                 'daily' => $range['daily'], 'lifetime' => $life]);
 
         case 'breakdown':
             [$from, $to] = dates();

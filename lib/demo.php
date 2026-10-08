@@ -4,104 +4,83 @@
  * Same methods as AdsReal with sample data. Edits are stored in the session
  * (so the UI reflects them); nothing changes in Google Ads.
  */
+require_once __DIR__ . '/demo_trivago.php';
+
 class DemoData
 {
     public static function accounts(): array
     {
         return [
-            ['id' => '1730145315', 'name' => 'Flipkart Home Decor', 'currency' => 'INR', 'status' => 'ENABLED', 'login' => '9990001111', 'via' => 'Demo MCC', 'conn' => 'demo1', 'email' => 'demo@adhookmedia.com'],
-            ['id' => '4445556666', 'name' => 'Lelaha Fashion',      'currency' => 'INR', 'status' => 'ENABLED', 'login' => '9990001111', 'via' => 'Demo MCC', 'conn' => 'demo1', 'email' => 'demo@adhookmedia.com'],
-            ['id' => '5556667777', 'name' => 'Old Campaign Account', 'currency' => 'INR', 'status' => 'CANCELED', 'login' => '9990001111', 'via' => 'Demo MCC', 'conn' => 'demo1', 'email' => 'demo@adhookmedia.com'],
-            ['id' => '7778889999', 'name' => 'ProvaDent US',        'currency' => 'USD', 'status' => 'ENABLED', 'login' => '7778889999', 'via' => '', 'conn' => 'demo2', 'email' => 'client@gmail.com'],
+            ['id' => TrivagoData::ACCOUNT_ID, 'name' => TrivagoData::ACCOUNT_NAME, 'currency' => 'INR', 'status' => 'ENABLED',
+             'login' => '6203917748', 'via' => 'Click Orbits MCC', 'conn' => 'demo1', 'email' => 'naveen.p@adhookmedia.com'],
         ];
     }
 }
 
 class AdsDemo
 {
+    private const STATE_VERSION = 3;
     private array $st;
 
     public function __construct(private string $cid)
     {
-        if (!isset($_SESSION['demo'][$cid])) {
-            $_SESSION['demo'][$cid] = $this->seedState();
+        if (($_SESSION['demo'][$cid]['_v'] ?? 0) !== self::STATE_VERSION) {
+            $_SESSION['demo'][$cid] = $this->seedState() + ['_v' => self::STATE_VERSION];
         }
         $this->st = &$_SESSION['demo'][$cid];
     }
 
+    /** Campaigns, ad groups, ads and keywords built from the Trivago sheet */
     private function seedState(): array
     {
-        mt_srand(crc32($this->cid));
-        $names = ['Search - Brand', 'Search - Generic Keywords', 'PMax - All Products', 'Shopping - Bestsellers',
-                  'Display - Remarketing', 'Search - Competitor', 'Demand Gen - Prospecting'];
-        $types = ['SEARCH', 'SEARCH', 'PERFORMANCE_MAX', 'SHOPPING', 'DISPLAY', 'SEARCH', 'DEMAND_GEN'];
-        $bids  = ['MAXIMIZE_CONVERSIONS', 'MANUAL_CPC', 'MAXIMIZE_CONVERSION_VALUE', 'TARGET_ROAS', 'MANUAL_CPC', 'TARGET_CPA', 'MAXIMIZE_CLICKS'];
         $camps = [];
-        foreach ($names as $i => $n) {
-            $id = (string)(21000000000 + $i * 137);
-            $camps[$id] = [
-                'id' => $id, 'name' => $n, 'status' => $i === 5 ? 'PAUSED' : 'ENABLED', 'type' => $types[$i],
-                'bidding' => $bids[$i], 'budget' => mt_rand(5, 50) * 100, 'w' => mt_rand(20, 100),
-                'tracking_url_template' => $i === 0 ? '{lpurl}?utm_source=google&utm_medium=cpc' : '',
-                'final_url_suffix' => '', 'custom_params' => [],
-                'target_cpa' => in_array($bids[$i], ['TARGET_CPA', 'MAXIMIZE_CONVERSIONS']) ? mt_rand(150, 400) : null,
-                'target_roas' => in_array($bids[$i], ['TARGET_ROAS', 'MAXIMIZE_CONVERSION_VALUE']) ? mt_rand(200, 500) / 100 : null,
-            ];
-        }
         $ags = [];
         $ads = [];
         $kws = [];
-        $words = ['home decor', 'wall art', 'table lamp', 'cushion covers', 'curtains online', 'bedsheets', 'wall clock', 'showpiece'];
-        foreach ($camps as $cid => $c) {
-            $cid = (string)$cid; // PHP turns numeric keys into ints
-            if (in_array($c['type'], ['PERFORMANCE_MAX'])) {
-                continue;
-            }
-            $nAg = mt_rand(2, 4);
-            for ($g = 1; $g <= $nAg; $g++) {
-                $agId = (string)(150000000000 + crc32($cid . $g) % 100000000);
-                $ags[$agId] = ['id' => $agId, 'camp' => $cid, 'name' => "Ad Group $g", 'status' => 'ENABLED',
-                               'type' => 'SEARCH_STANDARD', 'cpc_bid' => mt_rand(5, 30), 'w' => mt_rand(10, 60),
+        $targeting = [];
+        foreach (TrivagoData::load()['camps'] as $id => $c) {
+            $id = (string)$id;
+            $camps[$id] = ['id' => $id, 'name' => $c['name'], 'status' => $c['status'], 'type' => 'SEARCH',
+                'bidding' => $c['bidding'], 'budget' => $c['budget'], 'share' => 1.0,
+                'tracking_url_template' => '{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign={campaignid}',
+                'final_url_suffix' => '', 'custom_params' => [], 'target_cpa' => null, 'target_roas' => null,
+                'advertiser' => $c['advertiser'], 'network' => $c['network']];
+            $targeting[$id] = ['locations' => [$c['geo']], 'excluded' => [], 'languages' => array_values(array_unique([$c['lang_id'], '1000'])),
+                               'schedule' => [], 'geo_type' => 'PRESENCE'];
+            foreach (TrivagoData::adGroups($c) as $gi => [$gName, $gW, $words]) {
+                $agId = (string)(150000000000 + crc32($id . $gi) % 100000000);
+                $ags[$agId] = ['id' => $agId, 'camp' => $id, 'name' => $gName, 'status' => 'ENABLED', 'type' => 'SEARCH_STANDARD',
+                               'cpc_bid' => round($c['cpc'] * ($gi ? 0.8 : 1.15), 2), 'share' => $gW,
                                'tracking_url_template' => '', 'final_url_suffix' => ''];
-                for ($a = 1; $a <= 2; $a++) {
-                    $adId = (string)(700000000000 + crc32($agId . $a) % 100000000);
-                    $ads[$adId] = ['id' => $adId, 'ag_id' => $agId, 'camp' => $cid, 'type' => 'RESPONSIVE_SEARCH_AD',
-                                   'title' => ucwords($words[($g + $a) % 8]) . ' | Upto 60% Off | Free Delivery',
-                                   'status' => 'ENABLED', 'approval' => 'APPROVED', 'w' => mt_rand(10, 60),
-                                   'final_urls' => ['https://www.flipkart.com/home-decor/pr?sid=arb&affid=adhook' . $a],
-                                   'tracking_url_template' => '', 'final_url_suffix' => ''];
+                foreach ([0.58, 0.42] as $ai => $aW) {
+                    $copy = TrivagoData::adCopy($c['lang'], $c['country'], $ai + $gi);
+                    $adId = (string)(700000000000 + crc32($agId . $ai) % 100000000);
+                    $ads[$adId] = ['id' => $adId, 'ag_id' => $agId, 'camp' => $id, 'type' => 'RESPONSIVE_SEARCH_AD',
+                                   'title' => implode(' | ', array_slice($copy['headlines'], 0, 3)),
+                                   'status' => 'ENABLED', 'approval' => 'APPROVED', 'share' => $gW * $aW,
+                                   'final_urls' => [$c['url']], 'tracking_url_template' => '', 'final_url_suffix' => ''] + $copy;
                 }
-                if ($c['type'] === 'SEARCH') {
-                    for ($k = 0; $k < 4; $k++) {
-                        $kid = (string)(300000 + crc32($agId . $k) % 900000);
-                        $kws["$agId~$kid"] = ['id' => $kid, 'ag_id' => $agId, 'camp' => $cid,
-                                              'text' => $words[($g * 3 + $k) % 8] . ($k % 2 ? ' online' : ''),
-                                              'match' => ['EXACT', 'PHRASE', 'BROAD'][$k % 3], 'status' => 'ENABLED',
-                                              'cpc_bid' => mt_rand(5, 25), 'qs' => mt_rand(4, 10), 'w' => mt_rand(5, 40)];
-                    }
+                $wSum = array_sum(array_column($words, 2));
+                foreach ($words as $k => [$text, $match, $w]) {
+                    $kid = (string)(300000 + crc32($agId . $k) % 900000);
+                    $kws["$agId~$kid"] = ['id' => $kid, 'ag_id' => $agId, 'camp' => $id, 'text' => $text, 'match' => $match,
+                                          'status' => 'ENABLED', 'cpc_bid' => 0, 'qs' => 6 + crc32($text . $id) % 5,
+                                          'share' => $gW * $w / $wSum];
                 }
             }
         }
         return [
-            'camps' => $camps, 'ags' => $ags, 'ads' => $ads, 'kws' => $kws, 'negs' => [],
-            'asset_groups' => [
-                ['id' => '6100001', 'camp' => (string)(21000000000 + 2 * 137), 'name' => 'All Products', 'status' => 'ENABLED',
-                 'final_urls' => ['https://www.flipkart.com/home-decor?affid=adhook']],
-            ],
-            'account' => ['tracking_url_template' => '', 'final_url_suffix' => 'utm_source=google', 'auto_tagging' => true],
+            'camps' => $camps, 'ags' => $ags, 'ads' => $ads, 'kws' => $kws, 'negs' => [], 'asset_groups' => [],
+            'targeting' => $targeting,
+            'account' => ['tracking_url_template' => '', 'final_url_suffix' => '', 'auto_tagging' => true],
         ];
     }
 
-    /** Deterministic sample metrics */
-    private function m(string $seed, int $days, int $w = 50): array
+    /** Metrics for a campaign's child (share of the campaign's real sheet totals) */
+    private function childMetrics(array $x, string $from, string $to): array
     {
-        mt_srand(crc32($seed));
-        $impr = mt_rand(200, 600) * $w / 10 * $days;
-        $clicks = (int)($impr * mt_rand(20, 70) / 1000);
-        $cost = round($clicks * mt_rand(600, 1800) / 100, 2);
-        $conv = round($clicks * mt_rand(10, 80) / 1000, 2);
-        return ['impr' => (int)$impr, 'clicks' => $clicks, 'cost' => $cost, 'conv' => $conv,
-                'value' => round($conv * mt_rand(400, 1800), 2)];
+        $w = (float)($x['share'] ?? 0);
+        return $w > 0 ? TrivagoData::share(TrivagoData::range((string)$x['camp'], $from, $to), $w) : ZERO_METRICS;
     }
 
     private function days(string $from, string $to): int
@@ -111,27 +90,14 @@ class AdsDemo
 
     public function report(string $from, string $to, string $prevFrom, string $prevTo): array
     {
-        $camps = $this->campaigns($from, $to);
-        $tot = sum_metrics($camps);
+        $ids = array_keys($this->st['camps']);
         $daily = [];
-        $n = $this->days($from, $to);
-        $wsum = 0;
-        $ws = [];
         for ($d = strtotime($from); $d <= strtotime($to); $d += 86400) {
-            mt_srand(crc32($this->cid . date('Ymd', $d)));
-            $ws[date('Y-m-d', $d)] = $w = mt_rand(40, 140);
-            $wsum += $w;
+            $day = date('Y-m-d', $d);
+            $daily[] = ['date' => $day] + sum_metrics(array_map(fn($id) => TrivagoData::day((string)$id, $day), $ids));
         }
-        foreach ($ws as $date => $w) {
-            $row = ['date' => $date];
-            foreach ($tot as $k => $v) {
-                $row[$k] = in_array($k, ['impr', 'clicks']) ? (int)round($v * $w / $wsum) : round($v * $w / $wsum, 2);
-            }
-            $daily[] = $row;
-        }
-        $prev = sum_metrics(array_map(fn($c) => $this->m($c['id'] . 'p' . $prevFrom, $n, $c['w'] ?? 50), $this->st['camps']));
-        return ['currency' => $this->cid === '7778889999' ? 'USD' : 'INR', 'daily' => $daily,
-                'previous' => $prev, 'campaigns' => $camps];
+        $prev = sum_metrics(array_map(fn($id) => TrivagoData::range((string)$id, $prevFrom, $prevTo), $ids));
+        return ['currency' => 'INR', 'daily' => $daily, 'previous' => $prev, 'campaigns' => $this->campaigns($from, $to)];
     }
 
     public function campaignDaily(string $from, string $to): array
@@ -140,7 +106,7 @@ class AdsDemo
         for ($d = strtotime($from); $d <= strtotime($to); $d += 86400) {
             $day = date('Y-m-d', $d);
             foreach ($this->campaigns($day, $day) as $c) {
-                if ($c['impr'] || $c['cost']) {
+                if ($c['impr'] || $c['cost'] || $c['conv'] || $c['value']) {
                     $out[] = ['campaign_id' => $c['id'], 'name' => $c['name'], 'status' => $c['status'], 'channel' => $c['type'], 'date' => $day]
                            + array_intersect_key($c, ZERO_METRICS);
                 }
@@ -151,12 +117,10 @@ class AdsDemo
 
     public function campaigns(string $from, string $to): array
     {
-        $n = $this->days($from, $to);
         $out = [];
         foreach ($this->st['camps'] as $c) {
-            $m = $c['status'] === 'PAUSED' ? ZERO_METRICS : $this->m($c['id'] . $from . $to, $n, $c['w']);
-            $out[] = ['id' => $c['id'], 'name' => $c['name'], 'status' => $c['status'], 'type' => $c['type'],
-                      'bidding' => $c['bidding'], 'budget' => $c['budget']] + $m;
+            $out[] = ['id' => (string)$c['id'], 'name' => $c['name'], 'status' => $c['status'], 'type' => $c['type'],
+                      'bidding' => $c['bidding'], 'budget' => $c['budget']] + TrivagoData::range((string)$c['id'], $from, $to);
         }
         return $out;
     }
@@ -196,11 +160,10 @@ class AdsDemo
 
     public function adGroups(string $campId, string $from, string $to): array
     {
-        $n = $this->days($from, $to);
         $out = [];
         foreach ($this->st['ags'] as $g) {
             if ($g['camp'] === $campId) {
-                $out[] = $g + ($g['status'] === 'PAUSED' ? ZERO_METRICS : $this->m($g['id'] . $from, $n, $g['w']));
+                $out[] = $g + $this->childMetrics($g, $from, $to);
             }
         }
         return $out;
@@ -237,12 +200,11 @@ class AdsDemo
 
     public function ads(string $campId, string $from, string $to): array
     {
-        $n = $this->days($from, $to);
         $ads = [];
         foreach ($this->st['ads'] as $a) {
             if ($a['camp'] === $campId) {
                 $a['ag_name'] = $this->st['ags'][$a['ag_id']]['name'] ?? '';
-                $ads[] = $a + ($a['status'] === 'PAUSED' ? ZERO_METRICS : $this->m($a['id'] . $from, $n, $a['w']));
+                $ads[] = $a + $this->childMetrics($a, $from, $to);
             }
         }
         $groups = array_values(array_filter($this->st['asset_groups'], fn($g) => $g['camp'] === $campId));
@@ -281,13 +243,12 @@ class AdsDemo
 
     public function keywords(string $campId, string $from, string $to): array
     {
-        $n = $this->days($from, $to);
         $out = [];
         foreach ($this->st['kws'] as $k) {
             if ($k['camp'] === $campId) {
                 $k['ag_name'] = $this->st['ags'][$k['ag_id']]['name'] ?? '';
                 $k += ['final_url' => '', 'final_mobile_url' => '', 'tracking_url_template' => '', 'final_url_suffix' => '', 'custom_params' => []];
-                $out[] = $k + ($k['status'] === 'PAUSED' ? ZERO_METRICS : $this->m($k['id'] . $from, $n, $k['w']));
+                $out[] = $k + $this->childMetrics($k, $from, $to);
             }
         }
         return $out;
@@ -338,14 +299,19 @@ class AdsDemo
 
     public function searchTerms(string $campId, string $from, string $to): array
     {
-        $n = $this->days($from, $to);
-        $terms = ['cheap home decor items', 'wall art for living room', 'flipkart home decor sale', 'diy wall decor ideas',
-                  'best table lamp under 1000', 'home decor free', 'amazon home decor', 'cushion covers set of 5',
-                  'curtains for bedroom', 'wall clock design', 'how to decorate home', 'showpiece for gift'];
+        $c = TrivagoData::load()['camps'][$campId] ?? null;
+        if (!$c) {
+            return [];
+        }
+        $tot = TrivagoData::range($campId, $from, $to);
+        $terms = TrivagoData::searchTerms($c);
+        $wSum = array_sum(array_column($terms, 1)) / 0.82; // ~82% of spend is visible as search terms (like Google)
+        $groups = array_values(array_filter($this->st['ags'], fn($g) => $g['camp'] === $campId));
         $out = [];
-        foreach ($terms as $i => $t) {
-            $out[] = ['term' => $t, 'status' => $i < 2 ? 'ADDED' : 'NONE', 'ag_name' => 'Ad Group ' . ($i % 3 + 1)]
-                   + $this->m($campId . $t . $from, $n, 8 + $i * 2);
+        foreach ($terms as $i => [$t, $w, $added]) {
+            $isBrand = str_contains($t, 'trivago');
+            $ag = $groups[$isBrand && isset($groups[1]) ? 1 : 0]['name'] ?? '';
+            $out[] = ['term' => $t, 'status' => $added ? 'ADDED' : 'NONE', 'ag_name' => $ag] + TrivagoData::share($tot, $w / $wSum);
         }
         usort($out, fn($a, $b) => $b['cost'] <=> $a['cost']);
         return $out;
@@ -389,14 +355,19 @@ class AdsDemo
         return ['ok'];
     }
 
+    /** Hour-of-day curve for travel search (share of a day's clicks per hour, 0-23) */
+    private const HOUR_CURVE = [1, 0.6, 0.4, 0.3, 0.3, 0.5, 1.2, 2.4, 3.6, 4.6, 5.2, 5.6, 5.8, 5.6, 5.4, 5.3, 5.4, 5.8, 6.4, 7.2, 7.8, 7.4, 5.6, 3.0];
+
     public function hourlyClicks(string $from, string $to, ?array $campaignIds = null): array
     {
+        $ids = $campaignIds ? array_map('strval', $campaignIds) : array_keys($this->st['camps']);
+        $sumW = array_sum(self::HOUR_CURVE);
         $out = [];
         for ($d = strtotime($from); $d <= strtotime($to); $d += 86400) {
             $day = date('Y-m-d', $d);
-            for ($h = 8; $h <= 23; $h++) {
-                mt_srand(crc32($day . $h . implode(',', $campaignIds ?? [])));
-                $out[$day . ' ' . str_pad((string)$h, 2, '0', STR_PAD_LEFT)] = mt_rand(0, 6);
+            $clicks = array_sum(array_map(fn($id) => TrivagoData::day((string)$id, $day)['clicks'], $ids));
+            foreach (self::HOUR_CURVE as $h => $w) {
+                $out[$day . ' ' . str_pad((string)$h, 2, '0', STR_PAD_LEFT)] = (int)round($clicks * $w / $sumW);
             }
         }
         return $out;
@@ -404,17 +375,27 @@ class AdsDemo
 
     public function breakdown(string $type, string $from, string $to): array
     {
-        $n = $this->days($from, $to);
-        $labels = [
-            'device' => ['MOBILE', 'DESKTOP', 'TABLET', 'CONNECTED_TV'],
-            'dow' => ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
-            'hour' => range(0, 23),
-            'network' => ['SEARCH', 'SEARCH_PARTNERS', 'CONTENT', 'YOUTUBE', 'MIXED'],
+        $ids = array_keys($this->st['camps']);
+        if ($type === 'dow') { // real: sum the sheet by weekday
+            $out = [];
+            foreach (['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] as $l) {
+                $out[$l] = ['label' => $l] + ZERO_METRICS;
+            }
+            for ($d = strtotime($from); $d <= strtotime($to); $d += 86400) {
+                $l = strtoupper(date('l', $d));
+                $out[$l] = ['label' => $l] + sum_metrics([$out[$l], ...array_map(fn($id) => TrivagoData::day((string)$id, date('Y-m-d', $d)), $ids)]);
+            }
+            return array_values($out);
+        }
+        $tot = sum_metrics(array_map(fn($id) => TrivagoData::range((string)$id, $from, $to), $ids));
+        $split = [
+            'device' => ['MOBILE' => 0.61, 'DESKTOP' => 0.34, 'TABLET' => 0.05],
+            'network' => ['SEARCH' => 0.93, 'SEARCH_PARTNERS' => 0.07],
+            'hour' => array_map(fn($w) => $w / array_sum(self::HOUR_CURVE), self::HOUR_CURVE),
         ][$type] ?? [];
         $out = [];
-        foreach ($labels as $i => $l) {
-            $w = $type === 'device' ? [70, 22, 6, 2][$i] : ($type === 'hour' ? (int)(10 + 40 * sin(max(0, $l - 6) / 17 * M_PI)) : 20 + $i * 3);
-            $out[] = ['label' => (string)$l] + $this->m($this->cid . $type . $l . $from, $n, max(2, $w));
+        foreach ($split as $l => $w) {
+            $out[] = ['label' => (string)$l] + TrivagoData::share($tot, $w);
         }
         return $out;
     }
@@ -498,7 +479,9 @@ class AdsDemo
         $adId = (string)(710000000000 + mt_rand(1, 99999999));
         $this->st['ads'][$adId] = ['id' => $adId, 'ag_id' => $agId, 'camp' => $campId, 'type' => 'RESPONSIVE_SEARCH_AD',
             'title' => implode(' | ', array_slice($v['headlines'], 0, 3)), 'status' => $status, 'approval' => 'UNDER_REVIEW', 'w' => 0,
-            'final_urls' => [$v['final_url']], 'tracking_url_template' => '', 'final_url_suffix' => $v['final_url_suffix']];
+            'final_urls' => [$v['final_url']], 'tracking_url_template' => '', 'final_url_suffix' => $v['final_url_suffix'],
+            'headlines' => array_values($v['headlines']), 'descriptions' => array_values($v['descriptions'] ?? []),
+            'path1' => $v['path1'] ?? '', 'path2' => $v['path2'] ?? ''];
         return $adId;
     }
 
@@ -531,9 +514,9 @@ class AdsDemo
             $ads = [];
             foreach ($this->st['ads'] as $a) {
                 if (($a['ag_id'] ?? '') === $g['id']) {
-                    $ads[] = ['headlines' => ['Headline one', 'Headline two', 'Headline three'],
-                              'descriptions' => ['Description line one here', 'Description line two here'],
-                              'path1' => '', 'path2' => '', 'final_url' => $a['final_urls'][0] ?? 'https://example.com',
+                    $ads[] = ['headlines' => $a['headlines'] ?? ['Headline one', 'Headline two', 'Headline three'],
+                              'descriptions' => $a['descriptions'] ?? ['Description line one here', 'Description line two here'],
+                              'path1' => $a['path1'] ?? '', 'path2' => $a['path2'] ?? '', 'final_url' => $a['final_urls'][0] ?? 'https://example.com',
                               'final_url_suffix' => '', 'tracking_url_template' => ''];
                 }
             }
@@ -576,6 +559,7 @@ class AdsDemo
             ['id' => '21137', 'name' => 'California,United States', 'type' => 'State', 'country' => 'US'],
             ['id' => '21176', 'name' => 'Texas,United States', 'type' => 'State', 'country' => 'US'],
             ['id' => '20458', 'name' => 'Uttar Pradesh,India', 'type' => 'State', 'country' => 'IN'],
+            ['id' => '2756', 'name' => 'Switzerland', 'type' => 'Country', 'country' => 'CH'],
         ];
         $q = mb_strtolower(trim($q));
         return array_values(array_filter(array_merge(COMMON_GEOS, $extra), fn($g) => $q !== '' && str_contains(mb_strtolower($g['name']), $q)));
@@ -588,7 +572,7 @@ class AdsDemo
 
     public function targeting(string $campId): array
     {
-        $t = ($this->st['targeting'][$campId] ?? []) + ['locations' => ['2356'], 'excluded' => [], 'languages' => ['1000', '1023'],
+        $t = ($this->st['targeting'][$campId] ?? []) + ['locations' => ['2840'], 'excluded' => [], 'languages' => ['1000'],
                                                        'schedule' => [], 'geo_type' => 'PRESENCE_OR_INTEREST'];
         $names = array_column(array_merge(COMMON_GEOS, $this->searchGeo('a'), $this->searchGeo('e'), $this->searchGeo('i')), null, 'id');
         $mk = fn($id) => ['criterion_id' => $id, 'id' => $id, 'name' => $names[$id]['name'] ?? "Location $id", 'type' => $names[$id]['type'] ?? ''];
@@ -683,15 +667,23 @@ class AdsDemo
     {
         if (!isset($this->st['conversions'])) {
             $this->st['conversions'] = [
-                ['id' => '900000001', 'name' => 'Purchase', 'status' => 'ENABLED', 'type' => 'WEBPAGE', 'category' => 'PURCHASE',
-                 'primary' => true, 'in_conversions' => true, 'counting' => 'ONE_PER_CLICK', 'window_days' => 30,
+                ['id' => '900000001', 'name' => 'Trivago booking (affiliate)', 'status' => 'ENABLED', 'type' => 'UPLOAD_CLICKS', 'category' => 'PURCHASE',
+                 'primary' => true, 'in_conversions' => true, 'counting' => 'MANY_PER_CLICK', 'window_days' => 30,
+                 'default_value' => 0, 'currency' => 'INR', 'always_default' => false, 'attribution' => 'LAST_CLICK',
+                 'has_tag' => false, 'conv' => 0, 'value' => 0],
+                ['id' => '900000002', 'name' => 'Outbound click to trivago', 'status' => 'ENABLED', 'type' => 'WEBPAGE', 'category' => 'OUTBOUND_CLICK',
+                 'primary' => false, 'in_conversions' => false, 'counting' => 'ONE_PER_CLICK', 'window_days' => 30,
                  'default_value' => 0, 'currency' => 'INR', 'always_default' => false, 'attribution' => 'DATA_DRIVEN',
-                 'has_tag' => true, 'conv' => 34.0, 'value' => 41200.0],
-                ['id' => '900000002', 'name' => 'Lead form', 'status' => 'ENABLED', 'type' => 'WEBPAGE', 'category' => 'SUBMIT_LEAD_FORM',
-                 'primary' => true, 'in_conversions' => true, 'counting' => 'ONE_PER_CLICK', 'window_days' => 30,
-                 'default_value' => 200, 'currency' => 'INR', 'always_default' => true, 'attribution' => 'LAST_CLICK',
-                 'has_tag' => true, 'conv' => 12.0, 'value' => 2400.0],
+                 'has_tag' => true, 'conv' => 0, 'value' => 0],
             ];
+        }
+        if ($from !== '' && $to !== '') { // live numbers for the chosen dates (from the sheet)
+            $tot = sum_metrics(array_map(fn($id) => TrivagoData::range((string)$id, $from, $to), array_keys($this->st['camps'])));
+            foreach ($this->st['conversions'] as &$cv) {
+                if ($cv['id'] === '900000001') { $cv['conv'] = $tot['conv']; $cv['value'] = $tot['value']; }
+                if ($cv['id'] === '900000002') { $cv['conv'] = round($tot['clicks'] * 0.71); $cv['value'] = 0; }
+            }
+            unset($cv);
         }
         $out = array_map(fn($c) => array_diff_key($c, []), $this->st['conversions']);
         return ['conversions' => array_values($out), 'customer_id' => $this->cid, 'from' => $from, 'to' => $to];
