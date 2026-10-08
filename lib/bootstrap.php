@@ -26,6 +26,7 @@ require __DIR__ . '/brand.php';
 require __DIR__ . '/networks.php';
 require __DIR__ . '/optimizer.php';
 require __DIR__ . '/presets.php';
+require __DIR__ . '/scripts.php';
 
 if (PHP_SAPI !== 'cli') {
     session_set_cookie_params([

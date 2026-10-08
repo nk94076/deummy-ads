@@ -118,7 +118,7 @@ $onboard = user_needs_onboarding($u);
 <title><?= h($brand['name']) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/app.css?v=13">
+<link rel="stylesheet" href="assets/css/app.css?v=14">
 <style><?= brand_css($brand) ?></style>
 </head>
 <body>
@@ -162,6 +162,7 @@ $onboard = user_needs_onboarding($u);
       <a href="#analytics" data-v="analytics"><svg class="i" data-i="bars"></svg>Analytics</a>
       <a href="#automation" data-v="automation"><svg class="i" data-i="auto"></svg>Automation</a>
       <a href="#optimizer" data-v="optimizer"><svg class="i" data-i="target"></svg>AI Optimizer</a>
+      <a href="#scripts" data-v="scripts"><svg class="i" data-i="code"></svg>Scripts</a>
       <a href="#rotator" data-v="rotator"><svg class="i" data-i="refresh"></svg>URL Rotator</a>
       <a href="#tools" data-v="tools"><svg class="i" data-i="case"></svg>Tools</a>
       <a href="#settings" data-v="settings"><svg class="i" data-i="gear"></svg>Settings</a>
@@ -221,7 +222,7 @@ $onboard = user_needs_onboarding($u);
 <div class="toast hidden" id="toast"></div>
 <script>window.APP = { csrf: <?= json_encode($_SESSION['csrf']) ?>, user: <?= json_encode(['username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'super' => !empty($u['super'])]) ?>, canEdit: <?= !empty($CONFIG['allow_changes']) ? 'true' : 'false' ?>, brand: <?= json_encode($brand) ?>, onboard: <?= $onboard ? 'true' : 'false' ?> };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/js/core.js?v=15"></script>
+<script src="assets/js/core.js?v=16"></script>
 <script src="assets/js/dashboard.js?v=9"></script>
 <script src="assets/js/campaign.js?v=10"></script>
 <script src="assets/js/builder.js?v=12"></script>
@@ -238,6 +239,7 @@ $onboard = user_needs_onboarding($u);
 <script src="assets/js/optimizer.js?v=7"></script>
 <script src="assets/js/affreport.js?v=1"></script>
 <script src="assets/js/billing.js?v=1"></script>
+<script src="assets/js/scripts.js?v=1"></script>
 <script src="assets/js/onboard.js?v=2"></script>
 <script src="assets/js/main.js?v=9"></script>
 <?php endif; ?>

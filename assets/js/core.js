@@ -6,6 +6,7 @@ window.A = (() => {
 
   // ---------- icons (lucide-style) ----------
   const I = {
+    code: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>',
     db: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/>',
     send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
     line: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',

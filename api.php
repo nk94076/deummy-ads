@@ -341,6 +341,25 @@ try {
                  'range' => $range['totals'], 'months' => $range['months'], 'campaigns' => $range['campaigns'],
                  'daily' => $range['daily'], 'lifetime' => $life]);
 
+        // ================= Google Ads script generator =================
+        case 'script_generate':
+            $s = svc();
+            $cid = need_id('cid');
+            $acc = ['id' => $cid, 'name' => ''];
+            if ($demo) {
+                foreach (DemoData::accounts() as $a) if ($a['id'] === $cid) $acc['name'] = $a['name'];
+            } else {
+                global $ACC;
+                $acc['name'] = $ACC['name'] ?? '';
+            }
+            $want = array_map('strval', (array)($IN['campaign_ids'] ?? []));
+            $today = date('Y-m-d');
+            $all = $s->campaigns($today, $today);
+            $sel = in_array('all', $want, true)
+                ? array_values(array_filter($all, fn($c) => ($c['status'] ?? '') === 'ENABLED'))
+                : array_values(array_filter($all, fn($c) => in_array((string)$c['id'], $want, true)));
+            out(script_generate($acc, $sel, $IN));
+
         case 'breakdown':
             [$from, $to] = dates();
             out(['rows' => svc()->breakdown(p('type'), $from, $to)]);

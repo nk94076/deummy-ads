@@ -601,3 +601,6 @@ details.more summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--a
 .bill-bar{height:8px;border-radius:99px;background:var(--line-2);overflow:hidden;margin-top:6px}
 .bill-bar>span{display:block;height:100%;background:var(--accent);border-radius:99px}
 @media (max-width:1100px){.bill-head{grid-template-columns:1fr}}
+
+/* ---------- Scripts ---------- */
+.script-out{max-height:460px;overflow:auto;white-space:pre;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.55;tab-size:2}
