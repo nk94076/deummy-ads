@@ -239,7 +239,7 @@ $onboard = user_needs_onboarding($u);
 <script src="assets/js/optimizer.js?v=7"></script>
 <script src="assets/js/affreport.js?v=1"></script>
 <script src="assets/js/billing.js?v=1"></script>
-<script src="assets/js/scripts.js?v=1"></script>
+<script src="assets/js/scripts.js?v=2"></script>
 <script src="assets/js/onboard.js?v=2"></script>
 <script src="assets/js/main.js?v=9"></script>
 <?php endif; ?>

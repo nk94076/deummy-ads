@@ -171,7 +171,114 @@ function report_(log) {
 }
 
 JS;
+    $protect = ($in['protect'] ?? '1') !== '0' && ($in['protect'] ?? true) !== false;
+    if ($protect) {
+        $code = script_obfuscate($cfg, $acc, $build, $mode === 'ROTATE' ? count($suffixes) : 0);
+    }
+
     return ['script' => $code, 'build' => $build, 'mode' => $mode, 'campaigns' => count($camps),
-            'suffixes' => count($cfg['SUFFIXES']), 'generated' => $now,
-            'filename' => 'trakrhub-' . strtolower($mode) . '-' . (count($names) > 1 ? 'all-campaigns' : trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($names[0] ?? 'campaign')), '-')) . '.js'];
+            'suffixes' => count($cfg['SUFFIXES']), 'generated' => $now, 'protected' => $protect,
+            'filename' => 'trakrhub-' . strtolower($mode) . '-' . (count($names) > 1 ? 'all-campaigns' : trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($names[0] ?? 'campaign')), '-')) . ($protect ? '.min.js' : '.js')];
+}
+
+/**
+ * Copy-protection: emit a functional but obfuscated version of the script.
+ * Every build is unique - identifiers are random, strings are XOR-encoded and
+ * decoded at runtime (no eval, so it still runs in the Google Ads runtime),
+ * numbers are split into arithmetic, and only the branch actually used is kept.
+ * The Google Ads API method names stay visible (the script must call them to run),
+ * so the campaigns, suffix list, thresholds and tracking strategy are what gets hidden.
+ */
+function script_obfuscate(array $cfg, array $acc, string $build, int $sufCount): string
+{
+    $key = mt_rand(23, 239);
+    $used = [];
+    $rid = function () use (&$used): string {
+        do {
+            $n = '_' . substr('abcdefghijklmnopqrstuvwxyz', mt_rand(0, 25), 1) . bin2hex(random_bytes(mt_rand(2, 4)));
+        } while (isset($used[$n]));
+        $used[$n] = 1;
+        return $n;
+    };
+    // string -> JS array literal of XOR-encoded code points
+    $enc = function (string $s) use ($key): string {
+        $out = [];
+        $n = function_exists('mb_strlen') ? mb_strlen($s, 'UTF-8') : strlen($s);
+        for ($i = 0; $i < $n; $i++) {
+            $ch = function_exists('mb_substr') ? mb_substr($s, $i, 1, 'UTF-8') : $s[$i];
+            $cp = function_exists('mb_ord') ? mb_ord($ch, 'UTF-8') : ord($ch);
+            $out[] = $cp ^ $key;
+        }
+        return '[' . implode(',', $out) . ']';
+    };
+    // integer -> arithmetic expression
+    $numx = function (int $v) use (&$numx): string {
+        if ($v <= 1) return (string)$v;
+        $r = mt_rand(1, $v - 1);
+        return '(' . $r . '+' . ($v - $r) . ')';
+    };
+
+    $M = [
+        'D' => $rid(), 'F' => $rid(), 'C' => $rid(), 'pv' => $rid(), 'cs' => $rid(),
+        'i' => $rid(), 'c' => $rid(), 'u' => $rid(), 'cl' => $rid(), 'n' => $rid(),
+        'idx' => $rid(), 'want' => $rid(), 'have' => $rid(), 'o' => $rid(), 'sn' => $rid(),
+        'it' => $rid(), 'bn' => $rid(), 'k' => $rid(), 'nm' => $rid(), 'arr' => $rid(),
+        's' => $rid(), 'j' => $rid(),
+        'K' => (string)$key,
+        'IDS' => '[' . implode(',', array_map('intval', $cfg['CAMPAIGN_IDS'])) . ']',
+        'NAMES' => '[' . implode(',', array_map(fn($x) => $enc((string)$x), $cfg['CAMPAIGN_NAMES'])) . ']',
+        'COND1' => $enc("campaign.name = '"),
+        'COND2' => $enc("'"),
+        'ESC' => $enc("\\'"),
+        'TODAY' => $enc('TODAY'),
+        'EVERY' => $numx((int)$cfg['CLICKS_PER_SUFFIX']),
+        'SUF' => '[' . implode(',', array_map(fn($x) => $enc((string)$x), $cfg['SUFFIXES'])) . ']',
+    ];
+
+    if ($cfg['MODE'] === 'ROTATE') {
+        $M['BODYVARS'] = ',@n@,@idx@,@want@,@have@';
+        $M['LOGIC'] = '@n@=@SUF@.length;@idx@=Math.floor(@cl@/@EVERY@)%@n@;@want@=@D@(@SUF@[@idx@]);'
+            . '@have@=@u@.getFinalUrlSuffix()||"";if(@have@!==@want@&&!@pv@){@u@.setFinalUrlSuffix(@want@);}';
+    } else {
+        $M['BODYVARS'] = '';
+        $stmts = [];
+        if (trim((string)$cfg['TRACKING_TEMPLATE']) !== '') {
+            $M['TPL'] = $enc((string)$cfg['TRACKING_TEMPLATE']);
+            $stmts[] = 'if(@u@.getTrackingTemplate()!==@D@(@TPL@)&&!@pv@){@u@.setTrackingTemplate(@D@(@TPL@));}';
+        }
+        if (trim((string)$cfg['FINAL_URL_SUFFIX']) !== '') {
+            $M['FS'] = $enc((string)$cfg['FINAL_URL_SUFFIX']);
+            $stmts[] = 'if((@u@.getFinalUrlSuffix()||"")!==@D@(@FS@)&&!@pv@){@u@.setFinalUrlSuffix(@D@(@FS@));}';
+        }
+        $M['LOGIC'] = implode('', $stmts);
+    }
+
+    $mail = '';
+    if (trim((string)$cfg['REPORT_EMAIL']) !== '') {
+        $M['EMAIL'] = $enc((string)$cfg['REPORT_EMAIL']);
+        $M['SUBJ'] = $enc('URL manager run');
+        $M['BODY'] = $enc('campaigns updated: ');
+        $mail = 'if(!@pv@&&@cs@.length){MailApp.sendEmail(@D@(@EMAIL@),@D@(@SUBJ@),@D@(@BODY@)+@cs@.length);}';
+    }
+    $M['MAIL'] = $mail;
+
+    $tpl = <<<'JS'
+function @D@(@arr@){var @s@="",@j@;for(@j@=0;@j@<@arr@.length;@j@++){@s@+=String.fromCharCode(@arr@[@j@]^@K@);}return @s@;}
+function @C@(){var @o@=[],@sn@={},@it@,@c@,@bn@,@k@,@nm@=@NAMES@;@it@=AdsApp.campaigns().withIds(@IDS@).get();while(@it@.hasNext()){@c@=@it@.next();@sn@[@c@.getId()]=1;@o@.push(@c@);}if(@o@.length<@IDS@.length){for(@k@=0;@k@<@nm@.length;@k@++){@bn@=AdsApp.campaigns().withCondition(@D@(@COND1@)+@D@(@nm@[@k@]).replace(/'/g,@D@(@ESC@))+@D@(@COND2@)).get();while(@bn@.hasNext()){@c@=@bn@.next();if(!@sn@[@c@.getId()]){@sn@[@c@.getId()]=1;@o@.push(@c@);}}}}return @o@;}
+function @F@(){var @cs@=@C@(),@i@,@c@,@u@,@cl@,@pv@=AdsApp.getExecutionInfo().isPreview()@BODYVARS@;for(@i@=0;@i@<@cs@.length;@i@++){@c@=@cs@[@i@];@u@=@c@.urls();@cl@=@c@.getStatsFor(@D@(@TODAY@)).getClicks();@LOGIC@}@MAIL@}
+function main(){@F@();}
+JS;
+
+    $map = array_combine(array_map(fn($k) => '@' . $k . '@', array_keys($M)), array_values($M));
+    $out = $tpl;
+    for ($pass = 0; $pass < 6 && strpos($out, '@') !== false; $pass++) {
+        $out = strtr($out, $map);
+    }
+    if (strpos($out, '@') !== false) {
+        throw new RuntimeException('Script build failed. Try again.');
+    }
+    $sufLine = $sufCount ? ' · ' . $sufCount . '-step rotation' : '';
+    $header = "/* TrakrHub URL Manager · protected build $build$sufLine\n"
+        . "   Paste into Google Ads > Tools > Bulk actions > Scripts, then Authorize > Preview > Save. */\n";
+    return $header . $out . "\n";
 }

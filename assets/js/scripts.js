@@ -59,7 +59,9 @@
               <label class="f">Run report email <span class="muted">(optional)</span></label><input id="sc_em2" type="email" placeholder="pankaj@clickorbits.com" style="max-width:420px">
             </div>
 
-            <div class="row" style="gap:10px;margin-top:18px"><button class="btn primary" id="sc_go">${icon('code', 'sm')} Generate script</button>
+            <label class="row f" style="gap:10px;margin-top:16px;align-items:center"><span class="switch"><input type="checkbox" id="sc_prot" checked><span></span></span>
+              Protect script <span class="muted">(obfuscate so competitors can't copy the logic)</span></label>
+            <div class="row" style="gap:10px;margin-top:14px"><button class="btn primary" id="sc_go">${icon('code', 'sm')} Generate script</button>
               <span class="muted small">Campaign-level URL changes don't send ads for review.</span></div>
           </div></section>
         <div id="sc_out"></div>`;
@@ -93,6 +95,7 @@
             suffixes: $('#sc_sfx').value, clicks_per: $('#sc_n').value,
             tracking_template: $('#sc_tpl').value, final_url_suffix: $('#sc_fs').value,
             email: rot ? $('#sc_em').value : $('#sc_em2').value,
+            protect: $('#sc_prot').checked ? '1' : '0',
           });
           A.showError(null); output(d);
         } catch (err) { A.showError(err); }
@@ -102,7 +105,7 @@
 
   function output(d) {
     const out = $('#sc_out');
-    out.innerHTML = `<section class="card"><div class="card-head"><h2>${icon('check')} Script ready <span class="pill">${esc(d.build)}</span></h2>
+    out.innerHTML = `<section class="card"><div class="card-head"><h2>${icon('check')} Script ready <span class="pill">${esc(d.build)}</span>${d.protected ? ' <span class="pill" style="background:var(--good-bg);color:var(--good)">Protected</span>' : ''}</h2>
         <div class="tools"><button class="btn" id="sc_copy">${icon('copy', 'sm')} Copy</button><button class="btn primary" id="sc_dl">${icon('dl', 'sm')} Download .js</button></div></div>
       <div class="card-body">
         <div class="muted small" style="margin-bottom:10px">${d.mode === 'ROTATE' ? `Clicks-based rotation · ${d.suffixes} suffixes` : 'Tracking / suffix update'} · ${d.campaigns} campaign(s) · generated ${esc(d.generated)}</div>
