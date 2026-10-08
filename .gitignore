@@ -1,0 +1,21 @@
+# Secrets & local config — never commit (use config.sample.php as the template)
+config.php
+
+# Legacy v2 JSON data (imported into DB once)
+lib/data/
+*.json.bak
+
+# Build artifacts / archives
+*.zip
+*.tar.gz
+
+# Logs & temp
+*.log
+/tmp/
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
