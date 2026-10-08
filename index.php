@@ -229,7 +229,7 @@ $onboard = user_needs_onboarding($u);
 <script src="assets/js/reports.js?v=8"></script>
 <script src="assets/js/tools.js?v=9"></script>
 <script src="assets/js/automation.js?v=8"></script>
-<script src="assets/js/settings.js?v=15"></script>
+<script src="assets/js/settings.js?v=16"></script>
 <script src="assets/js/overview.js?v=10"></script>
 <script src="assets/js/rotator.js?v=13"></script>
 <script src="assets/js/access.js?v=10"></script>

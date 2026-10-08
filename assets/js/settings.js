@@ -133,11 +133,7 @@
     eyebrow: 'Settings', dates: false, needsAccount: false,
     async render(el) {
       const u = APP.user;
-      el.innerHTML = `<section class="card"><div class="card-head"><h2>${icon('link')} Mere Google accounts</h2><a class="btn primary" href="connect.php">${icon('plus', 'sm')} Connect / manage</a></div><div id="conns"><p style="padding:20px;text-align:center"><span class="spin"></span></p></div></section>
-        ${u.super ? `<section class="card"><div class="card-head"><h2>${icon('shield')} Branding (white-label)</h2></div><div class="form-card" style="max-width:640px">
-          <p class="muted small" style="margin:0 0 12px">Set the name, logo and colour that users see. Choose your own look, a default for everyone, or a specific user's brand from the Users table below.</p>
-          <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" id="brMine">${icon('gear', 'sm')} My branding</button><button class="btn" id="brDefault">${icon('users', 'sm')} Default for all users</button></div></div></section>` : ''}
-        ${u.role === 'admin' ? `<section class="card"><div class="card-head"><h2>${icon('users')} Users</h2><button class="btn primary" id="newU">${icon('plus', 'sm')} New user</button></div><div class="table-wrap" id="users"><p style="padding:20px;text-align:center"><span class="spin"></span></p></div></section>` : ''}
+      el.innerHTML = `<section class="card"><div class="card-head"><h2>${icon('link')} Google accounts</h2><a class="btn primary" href="connect.php">${icon('plus', 'sm')} Connect / manage</a></div><div id="conns"><p style="padding:20px;text-align:center"><span class="spin"></span></p></div></section>
         ${!u.super ? `<section class="card"><div class="card-head"><h2>${icon('shield')} Two-factor authentication</h2></div><div class="form-card" style="max-width:520px" id="twofaBox"><p style="padding:6px 0"><span class="spin"></span></p></div></section>
         <section class="card"><div class="card-head"><h2>${icon('key')} Change password</h2></div><div class="form-card" style="max-width:460px">
           <label class="f">Current password</label><input id="cp" type="password"><label class="f">New password</label><input id="np" type="password" placeholder="min 8 characters">
@@ -170,7 +166,7 @@
           : `<div class="card-body"><div class="alert info" style="margin:0">No Google account connected yet${A.state.demoLabels ? ', so the dashboard shows demo data' : ''}. <a href="connect.php"><b>Connect now →</b></a></div></div>`;
       }).catch(A.showError);
 
-      if (u.role === 'admin') {
+      if (u.role === 'admin' && $('#users')) {
         const loadUsers = async () => {
           const d = await A.api('users');
           $('#users').innerHTML = `<table class="data"><thead><tr><th class="l nosort">User</th><th class="l nosort">Role</th><th class="nosort">Google accounts</th><th class="l nosort">Created</th><th class="nosort"></th></tr></thead><tbody>

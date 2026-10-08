@@ -201,10 +201,11 @@ $conns    = conns_load(me());
       <?php endforeach; ?>
     </div>
 
+    <?php $maxed = (!$conns && is_demo()) || !$clientOk; ?>
     <h2 style="margin:26px 0 4px"><?= $conns ? '+ Add another Google account' : 'Connect Google account' ?></h2>
 
-    <?php if (!$clientOk): ?>
-      <div class="alert warn" style="margin-top:12px">Fill in <code>client_id</code> and <code>client_secret</code> in <code>config.php</code> first (Google Auth Platform &gt; Clients &gt; Desktop app).</div>
+    <?php if ($maxed): ?>
+      <div class="alert info" style="margin-top:12px">You have already connected the maximum number of accounts.</div>
     <?php else: ?>
       <div class="step">
         <div class="num">1</div>
