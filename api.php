@@ -222,6 +222,10 @@ try {
             out(['demo' => false, 'accounts' => $accounts, 'errors' => $errors]);
 
         case 'connections':
+            if ($demo) {
+                out(['connections' => [['id' => 'demo1', 'email' => TrivagoData::EMAIL, 'created' => '2026-07-18 10:42:00', 'accounts' => 1,
+                    'roots' => [['type' => 'MCC', 'id' => TrivagoData::MCC_ID, 'name' => TrivagoData::MCC_NAME, 'count' => 1]]]]]);
+            }
             $list = [];
             foreach (conns_load(me()) as $c) {
                 $d = accounts_cached($c['id']);
@@ -442,7 +446,7 @@ try {
 
         // ================= Manager account: new accounts =================
         case 'mcc_list':
-            $list = $demo ? [['conn' => 'demo1', 'email' => 'demo@adhookmedia.com', 'id' => '9990001111', 'name' => 'Demo MCC', 'count' => 3]] : mcc_list(me());
+            $list = $demo ? [['conn' => 'demo1', 'email' => TrivagoData::EMAIL, 'id' => TrivagoData::MCC_ID, 'name' => TrivagoData::MCC_NAME, 'count' => 1]] : mcc_list(me());
             out(['mccs' => $list, 'currencies' => MCC_CURRENCIES, 'timezones' => MCC_TIMEZONES, 'max' => MCC_MAX_BATCH]);
 
         case 'mcc_create':
@@ -463,8 +467,7 @@ try {
         case 'mcc_clients': // accounts currently linked to a manager account
             if ($demo) {
                 out(['clients' => [
-                    ['customer_id' => '4445556666', 'status' => 'ACTIVE', 'manager_link_id' => '111', 'name' => 'Lelaha Fashion', 'currency' => 'INR', 'hidden' => false],
-                    ['customer_id' => '7778889999', 'status' => 'PENDING', 'manager_link_id' => '112', 'name' => 'ProvaDent US', 'currency' => 'USD', 'hidden' => false],
+                    ['customer_id' => TrivagoData::ACCOUNT_ID, 'status' => 'ACTIVE', 'manager_link_id' => '111', 'name' => TrivagoData::ACCOUNT_NAME, 'currency' => 'INR', 'hidden' => false],
                 ]]);
             }
             out(['clients' => mcc_linked_clients(me(), p('conn', 'key'), need_id('mcc'))]);
@@ -915,7 +918,12 @@ try {
 
         // ================= AI Optimizer + affiliate networks =================
         case 'networks':
-            out(['networks' => networks_list(me()),
+            $nl = networks_list(me());
+            if ($demo && !$nl) { // Trivago runs on Awin: show it as connected
+                $nl = [['id' => 0, 'network' => 'awin', 'label' => 'Awin', 'status' => 'ok', 'last_sync' => date('Y-m-d H:i', strtotime('-2 hours')),
+                        'last_error' => null, 'demo' => false, 'created' => '2026-07-18']];
+            }
+            out(['networks' => $nl,
                  'fields' => ['impact' => network_fields('impact'), 'awin' => network_fields('awin')]]);
 
         case 'network_save':

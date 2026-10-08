@@ -14,6 +14,9 @@ final class TrivagoData
 {
     public const ACCOUNT_ID   = '4817256093';
     public const ACCOUNT_NAME = 'Trivago - Click Orbits';
+    public const EMAIL        = 'pankaj@clickorbits.com';
+    public const MCC_ID       = '6203917748';
+    public const MCC_NAME     = 'Click Orbits MCC';
 
     /** Country code => [country name, final URL, language id, language code, geo id] */
     private const COUNTRIES = [

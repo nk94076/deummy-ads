@@ -140,14 +140,14 @@ $conns    = conns_load(me());
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Connect Google Ads | AdHook</title>
+<title>Connect Google Ads | TrakrHub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css?v=1">
 </head>
 <body>
 <div class="connect-wrap">
   <div class="connect-card">
-    <div class="brand"><span class="logo">A</span> AdHook <b>Ads Manager</b></div>
+    <div class="brand"><span class="logo">T</span> TrakrHub <b>Ads Manager</b></div>
     <h1 style="margin-top:18px">Google accounts</h1>
     <p class="muted">The dashboard shows the Google Ads accounts of whichever Google account you connect
       (for a manager account, all of its accounts too). You can connect more than one. These connections are visible only to <b><?= h(me()) ?></b>.</p>
@@ -157,8 +157,17 @@ $conns    = conns_load(me());
 
     <!-- Connected emails -->
     <div class="conn-list">
-      <?php if (!$conns): ?>
-        <div class="muted small">No Google account connected yet<?= ($CONFIG['demo_banner'] ?? true) !== false ? ' (the dashboard is in demo mode)' : '' ?>.</div>
+      <?php if (!$conns && is_demo()): ?>
+        <div class="conn-item">
+          <span class="avatar"><?= h(strtoupper(substr(TrivagoData::EMAIL, 0, 1))) ?></span>
+          <div class="grow">
+            <div class="email"><?= h(TrivagoData::EMAIL) ?></div>
+            <div class="muted small">Connected 2026-07-18 10:42:00</div>
+            <ul class="roots"><li class="mcc"><b>MCC</b> <?= h(TrivagoData::MCC_NAME) ?> <span class="muted">(<?= h(fmt_cid(TrivagoData::MCC_ID)) ?>)</span> → 1 accounts</li></ul>
+          </div>
+        </div>
+      <?php elseif (!$conns): ?>
+        <div class="muted small">No Google account connected yet.</div>
       <?php endif; ?>
       <?php foreach ($conns as $c): ?>
         <div class="conn-item">

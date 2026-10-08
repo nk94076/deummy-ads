@@ -1,6 +1,6 @@
 <?php
 /**
- * AdHook Ads Manager - Config
+ * TrakrHub Ads Manager - Config
  * Copy this file to "config.php" and fill in the values.
  * Never commit config.php to Git.
  */
@@ -11,8 +11,8 @@ return [
 
     // ---- MySQL (Hostinger > Databases > MySQL Databases) ----
     'db_host'           => 'localhost',
-    'db_name'           => 'u123456789_adhook',
-    'db_user'           => 'u123456789_adhook',
+    'db_name'           => 'trakrhub',
+    'db_user'           => 'trakrhub',
     'db_pass'           => 'YOUR_DB_PASSWORD',
 
     // Key used to encrypt Google tokens - long random text (40+ characters).

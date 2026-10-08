@@ -33,12 +33,12 @@
     const m = A.modal({
       title: isNew ? 'New Suffix Rotator' : 'Edit: ' + esc(r.name), wide: true,
       body: `<div class="alert info" style="margin-top:14px">Account: <b>${esc(r.account_name)}</b> (${fmtId(r.customer_id)}). The final URL stays the same; only the <b>Final URL suffix</b> changes. Changing an account/campaign suffix does not send ads back for review.</div>
-        <label class="f">Rotator name</label><input id="rn" value="${esc(r.name)}" placeholder="e.g. Lycamobile Impact clickids">
+        <label class="f">Rotator name</label><input id="rn" value="${esc(r.name)}" placeholder="e.g. Trivago UK clickrefs">
 
         <div class="section-t">1. URLs / suffix list ${!isNew ? `<span class="muted" style="text-transform:none;font-weight:500">(${r.remaining} left, ${r.used} used${r.single_use ? ' — new uploads are added, already-used ones skipped' : ' — a new upload replaces the list'})</span>` : ''}</div>
         <label class="f">Excel (.xlsx) / CSV file</label><input type="file" id="file" accept=".xlsx,.csv,.txt,.tsv">
         <label class="f">Or paste URLs here <span class="muted">(one per line)</span></label>
-        <textarea id="paste" rows="3" placeholder="https://www.lycamobile.us/en/?irclickid=AAA...&utm_source=impact&...&#10;https://www.lycamobile.us/en/?irclickid=BBB...&utm_source=impact&..."></textarea>
+        <textarea id="paste" rows="3" placeholder="https://www.trivago.co.uk/?clickref=AAA...&utm_source=awin&...&#10;https://www.trivago.co.uk/?clickref=BBB...&utm_source=awin&..."></textarea>
         <button type="button" class="btn" id="load">${icon('dl', 'sm')} Load file / text</button>
         <div id="parsed" style="margin-top:12px"></div>
 

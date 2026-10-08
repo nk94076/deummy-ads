@@ -12,7 +12,7 @@ class DemoData
     {
         return [
             ['id' => TrivagoData::ACCOUNT_ID, 'name' => TrivagoData::ACCOUNT_NAME, 'currency' => 'INR', 'status' => 'ENABLED',
-             'login' => '6203917748', 'via' => 'Click Orbits MCC', 'conn' => 'demo1', 'email' => 'naveen.p@adhookmedia.com'],
+             'login' => TrivagoData::MCC_ID, 'via' => TrivagoData::MCC_NAME, 'conn' => 'demo1', 'email' => TrivagoData::EMAIL],
         ];
     }
 }
@@ -606,8 +606,7 @@ class AdsDemo
     public function userAccess(): array
     {
         $this->st['access'] ??= [
-            'users' => [['id' => '9001', 'email' => 'naveen.p@adhookmedia.com', 'role' => 'ADMIN', 'since' => '2025-01-10', 'by' => ''],
-                        ['id' => '9002', 'email' => 'reports@client.com', 'role' => 'READ_ONLY', 'since' => '2026-03-02', 'by' => 'naveen.p@adhookmedia.com']],
+            'users' => [['id' => '9001', 'email' => TrivagoData::EMAIL, 'role' => 'ADMIN', 'since' => '2026-07-18', 'by' => '']],
             'invites' => [],
         ];
         return $this->st['access'];

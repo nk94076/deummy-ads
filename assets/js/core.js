@@ -1,4 +1,4 @@
-/* AdHook Ads Manager - core (helpers, api, state, account/date pickers, modal, table, router) */
+/* TrakrHub Ads Manager - core (helpers, api, state, account/date pickers, modal, table, router) */
 window.A = (() => {
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -401,7 +401,7 @@ window.A = (() => {
     const logo = brand.logo_url
       ? `<span class="logo"><img src="${esc(brand.logo_url)}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:inherit"></span>`
       : `<span class="logo">${esc(brand.logo || 'A')}</span>`;
-    const parts = String(brand.name || 'AdHook Ads').split(' ');
+    const parts = String(brand.name || 'TrakrHub').split(' ');
     const nameHtml = `${logo} ${esc(parts[0])}${parts.length > 1 ? ' <span class="b2">' + esc(parts.slice(1).join(' ')) + '</span>' : ''}`;
     document.querySelectorAll('.sidebar .brand').forEach(el => el.innerHTML = nameHtml);
     if (brand.name) document.title = brand.name;

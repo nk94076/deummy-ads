@@ -162,10 +162,8 @@ $onboard = user_needs_onboarding($u);
       <a href="#analytics" data-v="analytics"><svg class="i" data-i="bars"></svg>Analytics</a>
       <a href="#automation" data-v="automation"><svg class="i" data-i="auto"></svg>Automation</a>
       <a href="#optimizer" data-v="optimizer"><svg class="i" data-i="target"></svg>AI Optimizer</a>
-      <a href="#affreport" data-v="affreport"><svg class="i" data-i="bars"></svg>Affiliate Report</a>
       <a href="#rotator" data-v="rotator"><svg class="i" data-i="refresh"></svg>URL Rotator</a>
       <a href="#tools" data-v="tools"><svg class="i" data-i="case"></svg>Tools</a>
-      <a href="#access" data-v="access"><svg class="i" data-i="shield"></svg>Access &amp; sharing</a>
       <a href="#settings" data-v="settings"><svg class="i" data-i="gear"></svg>Settings</a>
     </nav>
     <div class="side-fill"></div>
@@ -223,24 +221,24 @@ $onboard = user_needs_onboarding($u);
 <div class="toast hidden" id="toast"></div>
 <script>window.APP = { csrf: <?= json_encode($_SESSION['csrf']) ?>, user: <?= json_encode(['username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'super' => !empty($u['super'])]) ?>, canEdit: <?= !empty($CONFIG['allow_changes']) ? 'true' : 'false' ?>, brand: <?= json_encode($brand) ?>, onboard: <?= $onboard ? 'true' : 'false' ?> };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/js/core.js?v=13"></script>
+<script src="assets/js/core.js?v=14"></script>
 <script src="assets/js/dashboard.js?v=9"></script>
-<script src="assets/js/campaign.js?v=9"></script>
-<script src="assets/js/builder.js?v=11"></script>
+<script src="assets/js/campaign.js?v=10"></script>
+<script src="assets/js/builder.js?v=12"></script>
 <script src="assets/js/presets.js?v=1"></script>
 <script src="assets/js/reports.js?v=8"></script>
 <script src="assets/js/tools.js?v=9"></script>
 <script src="assets/js/automation.js?v=8"></script>
-<script src="assets/js/settings.js?v=14"></script>
+<script src="assets/js/settings.js?v=15"></script>
 <script src="assets/js/overview.js?v=10"></script>
-<script src="assets/js/rotator.js?v=12"></script>
+<script src="assets/js/rotator.js?v=13"></script>
 <script src="assets/js/access.js?v=10"></script>
-<script src="assets/js/mcc.js?v=9"></script>
+<script src="assets/js/mcc.js?v=10"></script>
 <script src="assets/js/conversions.js?v=9"></script>
-<script src="assets/js/optimizer.js?v=6"></script>
+<script src="assets/js/optimizer.js?v=7"></script>
 <script src="assets/js/affreport.js?v=1"></script>
 <script src="assets/js/billing.js?v=1"></script>
-<script src="assets/js/onboard.js?v=1"></script>
+<script src="assets/js/onboard.js?v=2"></script>
 <script src="assets/js/main.js?v=9"></script>
 <?php endif; ?>
 </body>

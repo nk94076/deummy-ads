@@ -24,9 +24,9 @@
     host.innerHTML = `<div class="rsa">
       <div class="rsa-form">
         <label class="f">Final URL <span class="muted">(landing page)</span></label>
-        <input class="rsa-url" data-field="final_url" value="${esc(init.final_url || '')}" placeholder="https://www.lycamobile.us/en/">
-        <div class="grid2"><div><label class="f">Display path 1 <span class="muted">(optional)</span></label><input class="rsa-p1" maxlength="15" value="${esc(init.path1 || '')}" placeholder="plans"></div>
-        <div><label class="f">Display path 2 <span class="muted">(optional)</span></label><input class="rsa-p2" maxlength="15" value="${esc(init.path2 || '')}" placeholder="unlimited"></div></div>
+        <input class="rsa-url" data-field="final_url" value="${esc(init.final_url || '')}" placeholder="https://www.trivago.co.uk/">
+        <div class="grid2"><div><label class="f">Display path 1 <span class="muted">(optional)</span></label><input class="rsa-p1" maxlength="15" value="${esc(init.path1 || '')}" placeholder="hotels"></div>
+        <div><label class="f">Display path 2 <span class="muted">(optional)</span></label><input class="rsa-p2" maxlength="15" value="${esc(init.path2 || '')}" placeholder="uk"></div></div>
         <label class="f" data-field="headlines">Headlines <span class="muted">(3–15, max 30 characters)</span> <span class="count-pill rsa-hc"></span></label>
         <div class="rsa-h"></div>
         <button type="button" class="btn sm rsa-addh">${icon('plus', 'sm')} Add headline</button>
@@ -358,7 +358,7 @@
   function smartPanel(host, apply) {
     host.innerHTML = `<div class="sb-head"><div class="sb-ic">${icon('spark')}</div><div><h3>Smart Campaign Builder</h3>
         <p class="muted small">Enter a website URL. The tool reads the page and suggests business, keywords, headlines, location, bidding and budget.</p></div></div>
-      <div class="sb-in"><div class="search-in">${icon('globe', 'sm')}<input id="sb_url" placeholder="https://www.lycamobile.us/en/59-unlimited-plan/" inputmode="url"></div>
+      <div class="sb-in"><div class="search-in">${icon('globe', 'sm')}<input id="sb_url" placeholder="https://www.trivago.co.uk/" inputmode="url"></div>
         <button class="btn primary" id="sb_go">${icon('spark', 'sm')} Analyze</button></div>
       <div id="sb_out"></div>`;
     const out = $('#sb_out', host);
@@ -439,7 +439,7 @@
 
   // ================= Wizard page =================
   const TIPS = {
-    s1: ['Put brand + country + type in the name (e.g. "Lyca - US - Search")', 'New campaign: start with Maximize clicks, switch to Maximize conversions once conversions come in', 'Set the budget so you get at least 10–20 clicks/day'],
+    s1: ['Put brand + country + type in the name (e.g. "Trivago - UK - Search")', 'New campaign: start with Maximize clicks, switch to Maximize conversions once conversions come in', 'Set the budget so you get at least 10–20 clicks/day'],
     s2: ['Only the locations where the offer is valid', 'Presence option: only people who are in the location', 'Schedule: run during the hours that convert best'],
     s3: ['One ad group = one theme (5–20 keywords)', 'Start with Phrase/Exact, add Broad later', 'Add negatives (free, jobs, login) from day one'],
     s5: ['Leave the suffix empty here if you use the Suffix Rotator', 'Smart Bidding needs conversion tracking to work', 'Open the landing URL in a browser once to check it'],
@@ -481,7 +481,7 @@
         <section class="card wz-sec" id="s1"><div class="wz-body">
           <div class="sec-h"><span class="sec-n">1</span><div><h3>Campaign, budget and bidding</h3><p>Choose a name, daily budget and bid strategy.</p></div></div>
           <div class="grid2">
-            <div><label class="f">Campaign name</label><input id="w_name" value="${esc(f.name)}" placeholder="e.g. Lyca US - Unlimited Plan - Search"></div>
+            <div><label class="f">Campaign name</label><input id="w_name" value="${esc(f.name)}" placeholder="e.g. Trivago UK - Hotels - Search"></div>
             <div><label class="f">Daily budget (${esc(c)})</label><div class="in-pre"><span>${esc(c)}</span><input id="w_budget" type="number" min="1" step="0.01" value="${esc(f.budget)}" placeholder="50"></div></div>
           </div>
           <label class="f">Bidding strategy</label>
@@ -519,7 +519,7 @@
             <div><label class="f">Default match type</label><select id="w_mt"><option value="PHRASE">Phrase match "…"</option><option value="EXACT" ${f.match === 'EXACT' ? 'selected' : ''}>Exact match […]</option><option value="BROAD" ${f.match === 'BROAD' ? 'selected' : ''}>Broad match</option></select></div></div>
           <div class="grid2">
             <div><label class="f">Keywords <span class="muted">(one per line)</span> <span class="count-pill" id="w_kc"></span></label>
-              <textarea id="w_kw" rows="8" placeholder='lycamobile unlimited plan&#10;[lyca mobile 6 month plan]&#10;"prepaid sim usa"'>${esc(f.keywords)}</textarea></div>
+              <textarea id="w_kw" rows="8" placeholder='hotels in london&#10;[trivago uk]&#10;"cheap hotels uk"'>${esc(f.keywords)}</textarea></div>
             <div><label class="f">Negative keywords <span class="muted">(optional)</span> <span class="count-pill" id="w_nc"></span></label>
               <textarea id="w_neg" rows="8" placeholder="free&#10;jobs&#10;customer care number">${esc(f.negatives)}</textarea></div>
           </div>
@@ -535,7 +535,7 @@
         <section class="card wz-sec" id="s5"><div class="wz-body">
           <div class="sec-h"><span class="sec-n">5</span><div><h3>Tracking <span class="muted" style="font-weight:500;font-size:13px">(optional)</span></h3><p>Campaign-level final URL suffix and tracking template.</p></div></div>
           <label class="f">Final URL suffix <span class="muted">(no leading ?)</span></label>
-          <input id="w_sfx" value="${esc(f.final_url_suffix)}" placeholder="irclickid=...&utm_source=impact&afsrc=1">${A.vtChips('w_sfx')}
+          <input id="w_sfx" value="${esc(f.final_url_suffix)}" placeholder="clickref={campaignid}&utm_source=google">${A.vtChips('w_sfx')}
           <label class="f">Tracking template</label>
           <input id="w_tpl" value="${esc(f.tracking_url_template)}" placeholder="{lpurl}?utm_campaign={campaignid}">${A.vtChips('w_tpl')}
           <div class="final-url" id="w_full"></div>

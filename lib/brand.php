@@ -7,7 +7,7 @@
  * The super admin sets all of these (see the branding UI in Settings).
  */
 
-const BRAND_BUILTIN = ['name' => 'AdHook Ads', 'logo' => 'A', 'logo_url' => '', 'color' => '#2563eb'];
+const BRAND_BUILTIN = ['name' => 'TrakrHub', 'logo' => 'T', 'logo_url' => '', 'color' => '#2563eb'];
 
 /** Clean + clamp an incoming brand to safe values. */
 function brand_sanitize($in): array

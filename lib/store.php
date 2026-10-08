@@ -138,7 +138,7 @@ function db_migrate(PDO $pdo): void
     if (!$missing) {
         $pdo->prepare("REPLACE INTO app_settings (name, value) VALUES ('schema_version', ?)")->execute([SCHEMA_VERSION]);
     } else {
-        error_log('AdHook migration incomplete - columns still missing: ' . implode(', ', $missing)
+        error_log('TrakrHub migration incomplete - columns still missing: ' . implode(', ', $missing)
             . '. schema_version NOT updated; will retry next request.');
     }
 }

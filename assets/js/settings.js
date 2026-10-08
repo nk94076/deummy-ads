@@ -88,7 +88,7 @@
       title, wide: true,
       body: `<div class="grid2" style="gap:0 18px">
           <div>
-            <label class="f">Brand name</label><input id="br_name" value="${v('name')}" placeholder="AdHook Ads">
+            <label class="f">Brand name</label><input id="br_name" value="${v('name')}" placeholder="TrakrHub">
             <label class="f">Logo text <span class="muted">(1–3 letters or an emoji)</span></label><input id="br_logo" value="${v('logo')}" maxlength="3" placeholder="A">
             <label class="f">Logo image URL <span class="muted">(optional, https)</span></label><input id="br_url" value="${v('logo_url')}" placeholder="https://…/logo.png">
             <label class="f">Primary colour</label><input id="br_color" type="color" value="${cur.color || '#2563eb'}" style="width:64px;height:40px;padding:2px;cursor:pointer">
@@ -104,7 +104,7 @@
     });
     const get = () => ({ name: m.$('#br_name').value, logo: m.$('#br_logo').value, logo_url: m.$('#br_url').value, color: m.$('#br_color').value });
     const preview = () => {
-      const b = get(); const nm = b.name || 'AdHook Ads'; const parts = nm.split(' ');
+      const b = get(); const nm = b.name || 'TrakrHub'; const parts = nm.split(' ');
       const logo = b.logo_url
         ? `<span class="logo"><img src="${esc(b.logo_url)}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:inherit"></span>`
         : `<span class="logo" style="background:${b.color}">${esc(b.logo || nm[0] || 'A')}</span>`;

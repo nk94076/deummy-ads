@@ -35,7 +35,7 @@
           </div>
           <details class="more"><summary>Optional: invite email, tracking template, final URL suffix</summary>
             <div class="grid2">
-              <div><label class="f">Invite email <span class="muted">(gives this email access to each account)</span></label><input id="m_em" type="email" placeholder="client@gmail.com"></div>
+              <div><label class="f">Invite email <span class="muted">(gives this email access to each account)</span></label><input id="m_em" type="email" placeholder="pankaj@clickorbits.com"></div>
               <div><label class="f">Access level</label><select id="m_role"><option value="ADMIN">Admin</option><option value="STANDARD">Standard</option><option value="READ_ONLY">Read only</option></select></div>
               <div><label class="f">Tracking template</label><input id="m_tpl" placeholder="{lpurl}?utm_source=google"></div>
               <div><label class="f">Final URL suffix</label><input id="m_sfx" placeholder="utm_source=google&utm_medium=cpc"></div>
@@ -45,13 +45,13 @@
         <section class="card"><div class="form-card">
           <div class="sec-h" style="margin-top:18px"><span class="sec-n">2</span><div><h3>List of accounts</h3><p>Generate from a name pattern, paste a list, or type them one by one.</p></div></div>
           <div class="gen-row">
-            <div><label class="f">Name pattern <span class="muted">({n} = number)</span></label><input id="g_pat" value="Lyca US {n}"></div>
+            <div><label class="f">Name pattern <span class="muted">({n} = number)</span></label><input id="g_pat" value="Trivago UK {n}"></div>
             <div><label class="f">How many</label><input id="g_cnt" type="number" min="1" max="${d.max}" value="5"></div>
             <div><label class="f">Start number</label><input id="g_start" type="number" min="0" value="1"></div>
             <div><button class="btn" id="g_go">${icon('plus', 'sm')} Generate</button></div>
           </div>
           <details class="more"><summary>Paste a list (from Excel)</summary>
-            <textarea id="p_txt" rows="5" placeholder="One account per line:&#10;Lyca US 1&#10;Lyca US 2, USD, America/New_York&#10;Client ABC, INR, Asia/Kolkata, client@gmail.com"></textarea>
+            <textarea id="p_txt" rows="5" placeholder="One account per line:&#10;Trivago UK 1&#10;Trivago US 1, USD, America/New_York&#10;Trivago IN, INR, Asia/Kolkata, pankaj@clickorbits.com"></textarea>
             <div class="hint">Format: <code>name, currency, time zone, invite email</code> — name alone works too (rest from defaults).</div>
             <button class="btn sm" id="p_go" style="margin-top:8px">Add to list</button></details>
           <div class="table-wrap mc-t"><table class="data"><thead><tr><th>#</th><th class="l">Account name</th><th class="l">Currency</th><th class="l">Time zone</th><th class="l">Invite email</th><th></th></tr></thead><tbody id="m_rows"></tbody></table></div>

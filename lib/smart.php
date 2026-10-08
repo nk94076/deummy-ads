@@ -121,7 +121,7 @@ function smart_fetch(string $url): array
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
             CURLOPT_ENCODING => '',
             CURLOPT_HTTPHEADER => ['Accept: text/html,application/xhtml+xml', 'Accept-Language: en-US,en;q=0.8'],
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 AdHookAdsBot',
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 TrakrHubBot',
             CURLOPT_WRITEFUNCTION => function ($ch, $chunk) use (&$body) {
                 $body .= $chunk;
                 return strlen($body) > 3000000 ? 0 : strlen($chunk); // max 3 MB

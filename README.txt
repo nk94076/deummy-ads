@@ -1,4 +1,4 @@
-AdHook Ads Manager v3 - Google Ads tool (PHP 8+ + MySQL, no Composer)
+TrakrHub Ads Manager v3 - Google Ads tool (PHP 8+ + MySQL, no Composer)
 =========================================================================
 
 v3.5 - TRIVAGO DEMO ACCOUNT + BILLING PAGE
@@ -112,7 +112,7 @@ SETUP (Hostinger)
 -----------------
 1. Create a database:
    hPanel > Databases > MySQL Databases > new database + user + password
-   (names look like: u123456789_adhook)
+   (names look like: trakrhub)
 
 2. Upload the folder, e.g. public_html/ads/
 

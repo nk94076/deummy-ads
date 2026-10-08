@@ -134,7 +134,7 @@
     g = g || { name: '', status: 'ENABLED', cpc_bid: '', tracking_url_template: '', final_url_suffix: '' };
     const m = A.modal({
       title: isNew ? 'New ad group' : 'Edit ad group: ' + esc(g.name),
-      body: `<label class="f">Ad group name</label><input id="agName" value="${esc(g.name)}" placeholder="e.g. Wall Art - Exact">
+      body: `<label class="f">Ad group name</label><input id="agName" value="${esc(g.name)}" placeholder="e.g. Hotels - Exact">
         <div class="grid2"><div><label class="f">Status</label><select id="agSt"><option value="ENABLED">Active</option><option value="PAUSED" ${g.status === 'PAUSED' ? 'selected' : ''}>Paused</option></select></div>
         <div><label class="f">Default max CPC bid</label><input id="agBid" type="number" step="0.01" min="0" value="${g.cpc_bid || ''}" placeholder="e.g. 12.50"><div class="hint">Used with Manual CPC. Ignored by Smart Bidding.</div></div></div>
         <div class="section-t">Tracking (optional)</div>${trackingFields(g, 'ag')}
@@ -339,7 +339,7 @@
     const m = A.modal({
       title: 'Add keywords',
       body: `<label class="f">Ad group</label><select id="ag">${ags.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
-        <label class="f">Keywords <span class="muted">(one per line)</span></label><textarea id="kw" rows="6" placeholder="wall art online&#10;home decor items&#10;table lamp"></textarea>
+        <label class="f">Keywords <span class="muted">(one per line)</span></label><textarea id="kw" rows="6" placeholder="hotels in london&#10;cheap hotels&#10;hotel deals"></textarea>
         <div class="grid2"><div><label class="f">Match type</label><select id="mt"><option value="PHRASE">Phrase "..."</option><option value="EXACT">Exact [...]</option><option value="BROAD">Broad</option></select></div>
         <div><label class="f">Max CPC <span class="muted">(optional)</span></label><input id="cpc" type="number" step="0.01"></div></div>
         <label class="f">Final URL <span class="muted">(optional, applied to all keywords above)</span></label>
@@ -401,7 +401,7 @@
         catch (err) { A.showError(err); }
       }
       if (e.target.closest('#addNeg')) {
-        const m = A.modal({ title: 'Add negative keywords', body: `<label class="f">Keywords (one per line)</label><textarea id="nk" rows="6" placeholder="free&#10;jobs&#10;amazon"></textarea>
+        const m = A.modal({ title: 'Add negative keywords', body: `<label class="f">Keywords (one per line)</label><textarea id="nk" rows="6" placeholder="free&#10;jobs&#10;careers"></textarea>
           <label class="f">Match type</label><select id="nm"><option value="PHRASE">Phrase</option><option value="EXACT">Exact</option><option value="BROAD">Broad</option></select>`,
           foot: `<button class="btn" data-close>Cancel</button><button class="btn primary" id="sv">Add</button>` });
         m.$('#sv').onclick = ev => A.busy(ev.currentTarget, async () => {

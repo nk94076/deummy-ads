@@ -21,7 +21,7 @@ function optimizer_report(string $owner, string $customerId, string $from, strin
     $networks = (int)q('SELECT COUNT(*) FROM network_accounts WHERE owner = ?', [$owner])->fetchColumn();
 
     if ($demo) {
-        return optimizer_demo();
+        return optimizer_demo($from, $to);
     }
 
     // Google spend + conversions per campaign. Prefer LIVE data (so spend shows immediately,
@@ -143,16 +143,29 @@ function opt_rec(string $type, string $severity, array $c, string $title, string
             'impact' => opt_m($impact), 'action' => $action];
 }
 
-/** Synthetic optimizer report for the no-connection demo. */
-function optimizer_demo(): array
+/** Optimizer report for the Trivago account (no Google connection): spend from Google, commission = Awin/Salegain revenue. */
+function optimizer_demo(string $from, string $to): array
 {
-    $rows = [
-        ['campaign_id' => '21000000000', 'name' => 'Flipkart Home Decor — Brand', 'status' => 'ENABLED', 'spend' => 4200, 'clicks' => 860, 'gconv' => 12, 'gvalue' => 0, 'commission' => 12800, 'approved' => 9800, 'pending' => 3000, 'reversed' => 900, 'aff_conv' => 41, 'sales' => 142000, 'real_roas' => 3.05, 'profit' => 8600],
-        ['campaign_id' => '21000000001', 'name' => 'Lelaha Fashion — Generic', 'status' => 'ENABLED', 'spend' => 3800, 'clicks' => 540, 'gconv' => 3, 'gvalue' => 0, 'commission' => 1500, 'approved' => 900, 'pending' => 600, 'reversed' => 1200, 'aff_conv' => 9, 'sales' => 21000, 'real_roas' => 0.39, 'profit' => -2300],
-        ['campaign_id' => '21000000002', 'name' => 'ProvaDent US — Search', 'status' => 'ENABLED', 'spend' => 2600, 'clicks' => 410, 'gconv' => 0, 'gvalue' => 0, 'commission' => 0, 'approved' => 0, 'pending' => 0, 'reversed' => 0, 'aff_conv' => 0, 'sales' => 0, 'real_roas' => 0.0, 'profit' => -2600],
-        ['campaign_id' => '21000000003', 'name' => 'Home Decor — Broad', 'status' => 'ENABLED', 'spend' => 1500, 'clicks' => 300, 'gconv' => 4, 'gvalue' => 0, 'commission' => 1550, 'approved' => 1400, 'pending' => 150, 'reversed' => 0, 'aff_conv' => 6, 'sales' => 18000, 'real_roas' => 1.03, 'profit' => 50],
-    ];
+    $pendFrom = date('Y-m-d', strtotime($to) - 9 * 86400); // last 10 days of commission still pending
+    $rows = [];
+    foreach (TrivagoData::load()['camps'] as $id => $c) {
+        $m = TrivagoData::range((string)$id, $from, $to);
+        if ($m['cost'] <= 0 && $m['value'] <= 0) {
+            continue;
+        }
+        $pending = TrivagoData::range((string)$id, max($from, $pendFrom), $to)['value'];
+        $comm = opt_m($m['value']);
+        $rows[] = ['campaign_id' => (string)$id, 'name' => $c['name'], 'status' => $c['status'],
+            'spend' => opt_m($m['cost']), 'clicks' => $m['clicks'], 'gconv' => opt_m($m['conv']), 'gvalue' => 0,
+            'commission' => $comm, 'approved' => opt_m($comm - $pending), 'pending' => opt_m($pending), 'reversed' => 0,
+            'aff_conv' => (int)$m['conv'], 'sales' => $comm,
+            'real_roas' => $m['cost'] > 0 ? round($comm / $m['cost'], 2) : null, 'profit' => opt_m($comm - $m['cost'])];
+    }
+    usort($rows, fn($a, $b) => $b['spend'] <=> $a['spend']);
     $recs = optimizer_recommendations($rows, true);
-    $tot = ['spend' => 12100, 'commission' => 15850, 'pending' => 3750, 'profit' => 3750, 'real_roas' => 1.31];
-    return ['campaigns' => $rows, 'recommendations' => $recs, 'totals' => $tot, 'networks' => 1, 'has_real' => true, 'demo' => true];
+    $tot = ['spend' => opt_m(array_sum(array_column($rows, 'spend'))), 'commission' => opt_m(array_sum(array_column($rows, 'commission'))),
+            'pending' => opt_m(array_sum(array_column($rows, 'pending')))];
+    $tot['profit'] = opt_m($tot['commission'] - $tot['spend']);
+    $tot['real_roas'] = $tot['spend'] > 0 ? round($tot['commission'] / $tot['spend'], 2) : null;
+    return ['campaigns' => $rows, 'recommendations' => $recs, 'totals' => $tot, 'networks' => 1, 'has_real' => (bool)$rows, 'demo' => true];
 }

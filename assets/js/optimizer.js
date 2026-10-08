@@ -35,7 +35,7 @@
       title: 'Affiliate tracking setup (sub-id)',
       wide: true,
       body: `<p class="muted small" style="margin:0 0 12px">For the optimizer to match affiliate commission back to the right campaign, the network's <b>sub-id</b> must carry the Google <b>campaign id</b>. Affiliate links redirect to another domain, so put the affiliate link in the <b>Tracking template</b> (not the Final URL — that triggers a "destination mismatch"). Google fills <code>{campaignid}</code> and <code>{lpurl}</code> automatically.</p>
-        <div class="alert info" style="margin:0 0 14px"><b>Final URL</b> stays the real landing page (where users end up), e.g. <code>https://www.lycamobile.us/en/...</code> — this avoids the destination-mismatch error.</div>
+        <div class="alert info" style="margin:0 0 14px"><b>Final URL</b> stays the real landing page (where users end up), e.g. <code>https://www.trivago.co.uk/...</code> — this avoids the destination-mismatch error.</div>
         <label class="f">Impact.com — Tracking template <span class="muted">(Campaign → Settings → Campaign URL options)</span></label>
         <pre class="example" style="user-select:all;white-space:pre-wrap;word-break:break-all">https://YOURLINK.sjv.io/c/PID/ADID/PROGID?subId1={campaignid}</pre>
         <div class="alert warn" style="margin:6px 0 14px"><b>Don't add <code>&url={lpurl}</code> to an Impact /c/ link.</b> The link already redirects to the offer page, and with <b>parallel tracking</b> Google puts a <code>google.com/asnc/…</code> wrapper into that param, which Impact can't load ("tracking call unsuccessful"). If Google asks for <code>{lpurl}</code> on save, append a param Impact ignores — <code>&lp={lpurl}</code> — or turn off parallel tracking (Account settings → Tracking).</div>

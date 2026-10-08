@@ -6,7 +6,7 @@
   const b = APP.brand || {};
   const badge = `<div class="brand">${b.logo_url
     ? `<span class="logo"><img src="${esc(b.logo_url)}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:inherit"></span>`
-    : `<span class="logo">${esc(b.logo || 'A')}</span>`} ${esc(b.name || 'AdHook Ads')}</div>`;
+    : `<span class="logo">${esc(b.logo || 'A')}</span>`} ${esc(b.name || 'TrakrHub')}</div>`;
 
   const wrap = document.createElement('div');
   wrap.className = 'login-wrap';

@@ -1,4 +1,4 @@
--- AdHook Ads Manager - MySQL schema
+-- TrakrHub Ads Manager - MySQL schema
 -- Tables are created automatically on first load.
 -- If the DB user has no CREATE permission, import this file in phpMyAdmin > Import.
 

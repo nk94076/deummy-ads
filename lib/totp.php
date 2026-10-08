@@ -90,7 +90,7 @@ function totp_verify(string $secretB32, string $code, int $window = 1, int $peri
 }
 
 /** otpauth:// URI the authenticator app reads (via QR or manual paste). */
-function totp_uri(string $secretB32, string $account, string $issuer = 'AdHook Ads'): string
+function totp_uri(string $secretB32, string $account, string $issuer = 'TrakrHub'): string
 {
     $label = rawurlencode($issuer) . ':' . rawurlencode($account);
     return 'otpauth://totp/' . $label . '?' . http_build_query([
